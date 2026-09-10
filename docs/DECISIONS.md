@@ -24,17 +24,19 @@ Confirmed only when Avi signs off.
 | 2026-09-10 | No "where banks disagree" section | Over short horizons the big houses are mostly aligned; a forced comparison would be thin or invented |
 | 2026-09-10 | Broaden candidate sources to credible institutional financial organisations: investment banks, asset managers, hedge funds, private-market / private-equity firms and other established investment institutions. Central banks and major multilateral financial/economic institutions may be investigated as Phase 0 fallbacks; changing the primary editorial proposition remains Avi's decision | A broader universe lets the MVP select on credibility, analytical quality, publishing frequency, technical accessibility and acceptable usage terms, without forcing difficult-to-access prestigious banks into the product |
 | 2026-09-10 | Avi approved BBVA Research, ABN AMRO Group Economics, Federal Reserve Bank of New York / Liberty Street Economics and BIS as the initial four-source MVP set; Bank of America Institute remains Candidate pending resolution of its applicable terms | Avi reviewed the Phase 0 feasibility findings; all documented caveats and terms classifications remain in force |
+| 2026-09-10 | READ may transiently fetch full public article text where an approved source permits it and the page is cleanly accessible; otherwise use its public RSS/listing excerpt. Never archive or commit raw text | Improve input quality while respecting source access and reuse conditions |
+| 2026-09-10 | Use a rolling 7-day synthesis window and identify material newly discovered since the previous daily run | Provide enough context for synthesis while showing what is new |
+| 2026-09-10 | Start with one API provider and one capable, cost-conscious model across the AI steps; actual provider and model remain undecided | Prove quality and cost before adding separate cheap/strong model routing |
+| 2026-09-10 | Retain a separate AI verification pass checking synthesis against extracted source claims, alongside deterministic code validation | Check source support as well as structural correctness before publication |
+| 2026-09-10 | The first live AI-processing run considers only the latest 7 days, even when dedupe state is blank | Avoid processing an entire historical feed and incurring unnecessary cost |
 
 ## Proposed (awaiting Avi)
 
 | Decision | Why |
 |---|---|
 | Discovery order: RSS feed, then listing page/sitemap, then search API | Free and reliable first; search adds cost, a key and attribution |
-| Rolling 7-day synthesis, with "new since yesterday" highlighted | One day's output is too little to build themes from |
 | Skip AI calls entirely on quiet days | No new input, no new cost |
 | Themes ranked by how many institutions cover them | Shows at a glance where the market conversation is |
-| Cheap model reads each article; stronger model writes the synthesis | Spend where the visitor sees the quality |
-| A second AI pass checks every theme against its sources (four-eyes check) | Catch hallucinations before they publish |
 | Every theme cites its source articles, and code validates the citations | Trust, but verify in code rather than in the prompt |
 | Private repo, `noindex` site | Shared by CV link, not found by search |
 | No bank logos or brand colours | Avoid implying affiliation |

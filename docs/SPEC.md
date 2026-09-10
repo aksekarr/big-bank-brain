@@ -130,9 +130,12 @@ so what matters is whether the website's own terms say the same.
 ```
 
 `type`: `rss | listing | sitemap | search`. `status`: `candidate | approved | excluded`.
-`fetchFullText` is only true where robots.txt allows the article paths and the Phase 0
-fetch test from a GitHub runner succeeded. Otherwise we work from the feed or listing
-text only (title and standfirst).
+READ may fetch full public article text transiently where an approved source permits
+it, robots.txt allows access and the page is cleanly accessible. Otherwise use the
+public RSS/listing excerpt. Raw text must never be archived or committed. The
+`fetchFullText` registry field remains an implementation proposal; this approval does
+not settle the final registry or extraction mechanism. The GitHub runner access test
+remains pending separately from this local spike.
 
 ---
 
@@ -154,9 +157,10 @@ COLLECT -> DEDUPE -> READ (extract) -> SYNTHESISE -> VERIFY -> VALIDATE -> PUBLI
   for this run.
 - 401/403/429/challenge page = source marked `skipped` for this run, reason logged.
   No evasion of any kind.
-- Full article fetch only if `fetchFullText` is true. Extract main text with Readability.
-  Truncate to `MAX_INPUT_CHARS_PER_ARTICLE` (default 24,000). Raw text is held in memory
-  only and never written to disk or committed.
+- READ uses permitted, cleanly accessible public article text transiently, with public
+  feed/listing excerpts as fallback (4.4). Raw HTML and article text stay in memory
+  and are never archived or committed. Extraction library and input limits remain
+  implementation proposals.
 
 ### 5.2 Dedupe
 
@@ -165,23 +169,30 @@ COLLECT -> DEDUPE -> READ (extract) -> SYNTHESISE -> VERIFY -> VALIDATE -> PUBLI
 - `data/seen.json` maps ID to `firstSeenAt`. Items already seen are skipped.
 - If an item has no publish date, use `firstSeenAt` and set `dateEstimated: true`.
 
-### 5.3 Rolling window **[Proposed]**
+### 5.3 Rolling window **[Confirmed]**
 
 A single day usually brings only a handful of pieces, which is too little to build
 themes from. So:
 
-- **"New since yesterday"** = items first seen in this run.
+- **"New since yesterday"** = material newly discovered since the previous daily run.
 - **Synthesis** runs over the rolling **last 7 days** of items and flags what's new.
-- **Quiet day** (no new items): skip the model calls entirely, keep the current digest,
+- **Initial live AI run:** consider only publications from the latest 7 days, not
+  every item discovered with blank dedupe state.
+- **[Proposed] Quiet day** (no new items): skip the model calls entirely, keep the current digest,
   update only `checkedAt`. Cost that day: £0.
 
 ---
 
 ## 6. AI design
 
-Three model steps. All outputs are JSON validated with zod.
+Three separate AI steps, initially using **one API provider and one capable,
+cost-conscious model**. The actual provider and model remain undecided; separate
+cheap/strong routing is not the initial architecture. A separate AI verification
+pass and deterministic code validation are confirmed. JSON schemas, validation
+library (including the earlier zod proposal) and detailed retry/drop rules remain
+implementation proposals.
 
-### 6.1 Read (per article): `claude-haiku-4-5`
+### 6.1 Read (per article)
 
 Input: title, institution, date, text (full or feed/listing only). Output:
 
@@ -202,10 +213,9 @@ Input: title, institution, date, text (full or feed/listing only). Output:
 equities-em-asia, bonds-credit, fx, commodities-energy, ai-tech, geopolitics-trade,
 private-markets, real-estate, digital-assets, other`.
 
-### 6.2 Synthesise (over the 7-day window): `claude-sonnet-5` **[Proposed]**
+### 6.2 Synthesise (over the confirmed 7-day window)
 
-Cheap model for the grunt work, stronger model for the one judgement call visitors
-actually see. Swappable to Haiku in config if cost matters more.
+Use the same initially selected model as READ and VERIFY; selection awaits Avi.
 
 Input: all extracted items in the window (summaries + claims, not raw text), with
 `isNew` flags. Code pre-groups claims by topic before the call. Output:
@@ -225,10 +235,12 @@ Prompt rules: attribute views to institutions ("Goldman expects..."); plain Engl
 3-5 themes, ordered by how many institutions cover them; no investment advice or
 recommendations; don't frame themes as conflicts between institutions.
 
-### 6.3 Verify (four-eyes check): `claude-haiku-4-5`
+### 6.3 Verify (separate AI pass, confirmed)
 
+Check the proposed published synthesis against the extracted source claims.
 For each theme: is the statement supported by the cited items' summaries and claims?
-Output `supported | unsupported` + one-line reason. Unsupported themes are dropped.
+
+**[Proposed implementation details]** Output `supported | unsupported` + one-line reason. Unsupported themes are dropped.
 If more than half fail, don't publish: keep the last good digest and log the failure.
 
 This is the banking "four-eyes" principle applied to AI output. Say so on the
@@ -385,17 +397,12 @@ equivalent alternative. (GitHub Pages on a free account needs the repo to be pub
 
 ## 10. Cost and budget
 
-Prices (per million tokens, input/output): Haiku 4.5 $1/$5, Sonnet 5 $2/$10.
-Store these in config so the guard computes cost from real `usage` numbers.
+The hard daily spend cap remains confirmed. Provider/model selection and current
+pricing must be reviewed before live AI calls. Earlier Haiku/Sonnet routing and
+price estimates are superseded by the single-provider, single-model starting point;
+a reliable cost estimate remains pending. Initial AI backfill covers only 7 days.
 
-| Step | Typical weekday | Cost |
-|---|---|---|
-| Read: ~8 items × (5k in, 0.6k out), Haiku | 40k / 5k | ~$0.06 |
-| Synthesise: ~20k in, 2k out, Sonnet 5 | | ~$0.06 |
-| Verify: ~10k in, 1k out, Haiku | | ~$0.02 |
-| **Total** | | **~$0.14/day, $0 on quiet days** |
-
-Expect roughly $2-4/month. Search (if used) stays inside Brave's monthly free credit.
+Search (if used) stays inside Brave's monthly free credit.
 GitHub Actions minutes for a private repo sit well inside the free allowance
 (one ~5-minute run a day). Vercel free tier: £0.
 
@@ -403,13 +410,15 @@ Guards (env/config):
 - `DAILY_BUDGET_USD=0.50`: estimate before each call, record actual after. When the cap
   is hit, stop processing new items and publish with what's done.
 - `MAX_NEW_ITEMS_PER_RUN=25`, `MAX_SEARCHES_PER_RUN=10`, `MAX_INPUT_CHARS_PER_ARTICLE=24000`.
-- Also set a monthly spend limit in the Claude Console as an outer backstop.
+- **[Proposed]** A provider-side monthly spend limit as an outer backstop, if supported
+  by the provider Avi selects.
 
 ---
 
 ## 11. Security
 
-- Secrets: `ANTHROPIC_API_KEY`, `BRAVE_API_KEY` (only if search is used). GitHub Secrets
+- Secrets: the selected provider's API key (provider/key name undecided),
+  `BRAVE_API_KEY` (only if search is used). GitHub Secrets
   in CI, gitignored `.env` locally, `.env.example` committed with names only.
 - Private repo. Never log request headers or keys. Scrub errors before logging.
 - Pin GitHub Actions to major versions at minimum.
@@ -491,8 +500,8 @@ Each phase ends with Avi's review. Codex plans first, then builds.
 | Visual direction | Editorial "morning briefing" (8.4) | [Proposed] |
 | Notion push | v1.1, via Notion's REST API reusing your existing API layer (MCP is for agents calling tools interactively, not a scheduled job) | [Proposed] |
 | Search API | Fallback only, for sources without a feed or readable listing page | [Proposed] |
-| Model mix | Haiku for read/verify, Sonnet 5 for synthesis | [Proposed] |
-| Digest window | Rolling 7 days, "new since yesterday" highlighted | [Proposed] |
+| Provider and model | One provider and one capable, cost-conscious model initially; actual selection undecided | Initial architecture confirmed; selection awaits Avi |
+| Digest window | Rolling 7 days, new material since the previous daily run identified; first live AI run limited to 7 days | Confirmed |
 | Custom domain | Optional, ~£10/year, looks better on a CV | Avi to decide |
 | Analytics | Optional cookieless (e.g. Vercel Web Analytics or GoatCounter): tells you if the CV link gets clicked | Avi to decide |
 

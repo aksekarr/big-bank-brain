@@ -158,3 +158,62 @@ Run the complete offline suite with the command above:
 `python3 -B -m unittest discover -s tests -v`.
 The synthetic dedupe tests cover first/second runs, one new item, URL equivalence,
 malformed inputs/state, write failures, retry recovery and overlapping runs.
+
+## BBVA READ feasibility (no AI)
+
+```sh
+python3 -B scripts/read_bbva.py
+```
+
+Reads the existing `bbva-discovery.json`, validates it and selects up to three distinct
+URLs in descending publication-date order. It does not rediscover the listing, change
+dedupe state or implement the future AI seven-day backfill filter. If the snapshot is
+old, the selected articles are simply the newest available in that snapshot.
+
+Checks BBVA robots.txt before requesting article paths. Requests use an honest READ
+feasibility user agent, a 20-second timeout, a 2 MB response limit and at least three
+seconds between requests, extended by publisher crawl rules. Only HTTP 200 HTML is
+accepted. No redirects, retries, PDFs, images, scripts or other linked assets are fetched.
+Maximum three article requests per invocation. A fetch/access failure or recognised
+challenge stops remaining article requests; denied paths are not fetched. Existing
+listing excerpts provide fallback without a new request. Missing/invalid robots also
+means excerpt-only fallback. Nothing bypasses access controls.
+
+The standard-library parser selects `article_publicacionDetalle` → `detalle_tabs_publi`
+and extracts only `detalle_text_intro` and `lista_puntosClave` content. Navigation,
+authors, tags, downloads, menus, hidden content and footer text are excluded. It
+requires a closed article and well-formed selected content, tolerating unclosed outer
+layout divs observed in BBVA's page. Minimal word/character checks require meaningful
+key-point text beyond the introduction; failures use the listing excerpt where present.
+These are spike heuristics, not semantic verification or a completeness guarantee.
+
+**The tested HTML pages supply a summary and key points, not the complete linked PDF
+report.** Diagnostics label that distinction. A general-purpose extraction library
+would not recover text absent from the HTML. PDF/report extraction remains unbuilt.
+
+Only safe JSON diagnostics are printed: discovery title/URL, success flags, text
+source, character/approximate word counts and fixed failure reasons. Counts describe
+the extracted HTML text, or the listing excerpt when fallback is flagged. No raw HTML,
+article text or generated summaries are printed or written. Everything is held in
+memory and released when the process exits; this is not a secure memory-erasure claim.
+The script creates no output file. Use `-B` as shown to suppress Python bytecode caches.
+Exit 0 means all selected pages passed extraction; exit 1 means invalid input or at
+least one fallback/failure, even if a usable listing excerpt exists.
+
+Live acceptance on 2026-09-10 used exactly three article requests: Argentina inflation
+(775 characters / approximately 124 words), Europe ECB (635 / 106), Türkiye CBRT
+(1,496 / 235). All three isolated HTML summary/key-point text without listing fallback.
+The first response was inspected and reused within one in-memory Python session;
+the other two were fetched through the spike. The session then exited, discarding
+its responses. No extra request was made to repeat the first page.
+
+Offline tests use invented HTML to cover extraction boundaries, malformed/empty input,
+listing fallback, access failures, the request cap and absence of raw output/file I/O.
+Run the complete suite with `python3 -B -m unittest discover -s tests -v`.
+
+Before any AI integration: select a provider/model with Avi, implement cost control,
+seven-day input eligibility and processing-state handling, and assess extraction
+coverage and retained source-use caveats. The new product decisions are documented
+in `docs/DECISIONS.md` and `docs/SPEC.md`; older contrary proposal wording in historical
+instructions does not override Avi's explicit approvals. Other sources' READ adapters,
+production schemas, scheduling and deployment remain outside this spike.
