@@ -13,3 +13,8 @@
 
 # Python interpreter caches
 __pycache__/
+
+# Local dedupe spike state and current-run output
+/dedupe-seen.json
+/dedupe-new.json
+/.dedupe-*.tmp

@@ -105,3 +105,56 @@ python3 -B -m unittest discover -s tests -v
 The additional tests use invented HTML/XML and mocked access to check parsing,
 missing optional metadata, invalid data, duplicates/conflicts, access denials,
 request scope, ignored content fields and preservation of previous output.
+
+## Local DEDUPE spike
+
+After the four discovery snapshots exist, run:
+
+```sh
+python3 scripts/dedupe.py
+```
+
+This command makes no network or model calls. It reads all four root-level discovery
+JSON files, validates their structure, counts, source attribution, URLs, timestamps
+and supplied publication dates, then compares their URLs with `dedupe-seen.json`.
+A missing discovery input or malformed existing seen-state fails the entire run;
+corrupt state is never silently reset. Missing optional dates remain missing.
+
+`dedupe-new.json` contains only this run's new publications, with institution, source,
+title, normalised URL, discovery timestamp and supplied date/excerpt. BBVA's listing
+summary is mapped to `excerpt`; no new summary is generated. Duplicate URLs retain
+the first encountered metadata. An updated headline at an already-seen URL is not
+considered a new publication.
+
+URL identity lowercases the host, removes the default HTTPS port, fragments, `utm_*`
+parameters and recognised click/email tracking keys (`gclid`, `dclid`, `fbclid`,
+`msclkid`, `mc_cid`, `mc_eid`). Other query components retain their original encoding
+and order. Path case and trailing slashes are preserved because equivalence is not
+established. There are no redirect lookups, article canonical-tag requests, hashes,
+article IDs or content similarity matching. Distinct URLs for the same article can
+therefore remain distinct unless they differ only by the recognised URL noise.
+
+On the first successful run, all current publications are new. Seen-state maps each
+normalised URL to its first-seen timestamp. An unchanged second run writes an empty
+new-item list. It does not erase the seen URLs. Both files are generated, local and
+Git-ignored; discovery snapshots are never modified. The current output is replaced
+each run, so after the second-run check it intentionally contains zero items.
+
+All inputs are validated and both JSON files fully prepared before replacement.
+New-item output is replaced first; seen-state is atomically replaced last. If writing
+output or committing state fails, the old seen-state remains intact (or absent on
+first run). A failure between the two replacements can leave new output alongside
+old state; rerunning emits those items again rather than losing them. This is not a
+two-file database transaction or a power-loss durability guarantee. A non-blocking
+local directory lock rejects overlapping dedupe runs; this standard-library locking
+choice supports the current macOS/Unix environment, not Windows.
+
+Here “seen” means successfully emitted by this discovery/dedupe spike, **not** read,
+summarised or published. Downstream acknowledgements/retries, production persistence,
+scheduling, state expiry, extraction, AI processing and deployment remain unbuilt.
+No production model, framework or hosting choice is implied.
+
+Run the complete offline suite with the command above:
+`python3 -B -m unittest discover -s tests -v`.
+The synthetic dedupe tests cover first/second runs, one new item, URL equivalence,
+malformed inputs/state, write failures, retry recovery and overlapping runs.
