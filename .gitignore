@@ -4,3 +4,6 @@
 # Local environment files and secrets
 .env
 .env.*
+
+# Generated local discovery snapshot
+/bbva-discovery.json
