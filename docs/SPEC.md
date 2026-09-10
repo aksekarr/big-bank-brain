@@ -186,15 +186,23 @@ themes from. So:
 ## 6. AI design
 
 Three separate AI steps, initially using **one API provider and one capable,
-cost-conscious model**. The actual provider and model remain undecided; separate
-cheap/strong routing is not the initial architecture. A separate AI verification
+cost-conscious model**: Avi approved **OpenAI Responses API, `gpt-5.6-terra`,
+with strict structured outputs**. Initially use this model family for extraction,
+later synthesis and later verification; no multi-model routing. A separate AI verification
 pass and deterministic code validation are confirmed. JSON schemas, validation
 library (including the earlier zod proposal) and detailed retry/drop rules remain
 implementation proposals.
 
 ### 6.1 Read (per article)
 
-Input: title, institution, date, text (full or feed/listing only). Output:
+Input: permitted article text and metadata (full public HTML text or feed/listing
+text where appropriate). Keep deterministic title, source, URL and publication date
+outside the generated semantic extraction. The article-level spike returns `summary`,
+`topics`, `claims`, `geographies`, `markets_or_asset_classes` and nullable `time_horizon`
+through strict structured outputs. Unsupported lists stay empty and unstated horizons
+stay null. This proves extraction, not a final ontology or semantic verification.
+
+The earlier detailed output/topic proposal below remains a future design reference:
 
 ```json
 {
@@ -215,7 +223,7 @@ private-markets, real-estate, digital-assets, other`.
 
 ### 6.2 Synthesise (over the confirmed 7-day window)
 
-Use the same initially selected model as READ and VERIFY; selection awaits Avi.
+Use the approved `gpt-5.6-terra` model family, as for READ and VERIFY.
 
 Input: all extracted items in the window (summaries + claims, not raw text), with
 `isNew` flags. Code pre-groups claims by topic before the call. Output:
@@ -397,8 +405,9 @@ equivalent alternative. (GitHub Pages on a free account needs the repo to be pub
 
 ## 10. Cost and budget
 
-The hard daily spend cap remains confirmed. Provider/model selection and current
-pricing must be reviewed before live AI calls. Earlier Haiku/Sonnet routing and
+The hard daily spend cap remains confirmed. OpenAI Responses and `gpt-5.6-terra`
+are approved; current pricing and explicit per-spike limits must be reviewed before
+separately authorising live AI calls. Earlier Haiku/Sonnet routing and
 price estimates are superseded by the single-provider, single-model starting point;
 a reliable cost estimate remains pending. Initial AI backfill covers only 7 days.
 
@@ -417,7 +426,7 @@ Guards (env/config):
 
 ## 11. Security
 
-- Secrets: the selected provider's API key (provider/key name undecided),
+- Secrets: `OPENAI_API_KEY` for the approved OpenAI provider,
   `BRAVE_API_KEY` (only if search is used). GitHub Secrets
   in CI, gitignored `.env` locally, `.env.example` committed with names only.
 - Private repo. Never log request headers or keys. Scrub errors before logging.
@@ -500,7 +509,7 @@ Each phase ends with Avi's review. Codex plans first, then builds.
 | Visual direction | Editorial "morning briefing" (8.4) | [Proposed] |
 | Notion push | v1.1, via Notion's REST API reusing your existing API layer (MCP is for agents calling tools interactively, not a scheduled job) | [Proposed] |
 | Search API | Fallback only, for sources without a feed or readable listing page | [Proposed] |
-| Provider and model | One provider and one capable, cost-conscious model initially; actual selection undecided | Initial architecture confirmed; selection awaits Avi |
+| Provider and model | OpenAI Responses API, `gpt-5.6-terra`, strict structured outputs; same model family initially across extraction, synthesis and verification | Confirmed |
 | Digest window | Rolling 7 days, new material since the previous daily run identified; first live AI run limited to 7 days | Confirmed |
 | Custom domain | Optional, ~£10/year, looks better on a CV | Avi to decide |
 | Analytics | Optional cookieless (e.g. Vercel Web Analytics or GoatCounter): tells you if the CV link gets clicked | Avi to decide |

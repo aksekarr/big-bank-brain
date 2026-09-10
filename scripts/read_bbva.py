@@ -161,11 +161,15 @@ def fallback(item, reason, fetched=False):
             'reason': reason}
 
 
-def diagnose(item, html):
+def diagnose(item, html, on_text=None):
     try:
         article_text = extract_article(html)
     except ValueError as error:
         return fallback(item, str(error), fetched=True)
+    # An explicitly supplied downstream consumer may use text transiently.
+    # The original diagnostic command never supplies one.
+    if on_text is not None:
+        on_text(item, article_text)
     # Only counts leave this function; no raw string is returned or logged.
     return {'title': item['title'], 'url': item['url'], 'fetch_success': True,
             'extraction_success': True, 'listing_fallback_used': False,
@@ -174,8 +178,10 @@ def diagnose(item, html):
             'complete_linked_report_extracted': False}
 
 
-def run(path=SNAPSHOT):
-    items = select_items(path)
+def run(path=SNAPSHOT, *, items=None, on_text=None):
+    items = select_items(path) if items is None else items
+    if len(items) > 3:
+        raise ValueError("READ spike permits at most three articles")
     try:
         robots, mime = fetch(ROBOTS)
         if mime != 'text/plain' or '<html' in robots.lower() or not re.search(r'^\s*user-agent\s*:', robots, re.I | re.M):
@@ -206,7 +212,7 @@ def run(path=SNAPSHOT):
             results.append(fallback(item, 'fetch_failed_or_non_html'))
             stopped = True
             continue
-        diagnostic = diagnose(item, html)
+        diagnostic = diagnose(item, html, on_text=on_text)
         del html
         results.append(diagnostic)
         if diagnostic.get('reason') == 'challenge_page':

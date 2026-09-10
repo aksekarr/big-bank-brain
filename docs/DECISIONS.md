@@ -30,6 +30,7 @@ Confirmed only when Avi signs off.
 | 2026-09-10 | Retain a separate AI verification pass checking synthesis against extracted source claims, alongside deterministic code validation | Check source support as well as structural correctness before publication |
 | 2026-09-10 | The first live AI-processing run considers only the latest 7 days, even when dedupe state is blank | Avoid processing an entire historical feed and incurring unnecessary cost |
 | 2026-09-10 | Seven-day eligibility means today plus the previous six calendar dates in Europe/London, inclusive; exclude missing and future publication dates rather than estimating them | Date-only discovery metadata needs an explicit boundary without inventing publication times |
+| 2026-09-11 | Use OpenAI Responses API with `gpt-5.6-terra` and strict structured outputs; initially retain this model family for extraction, later synthesis and separate verification | Avi selected the initial provider/model to prove article-level extraction without multi-model routing; installation and paid calls still require separate approval |
 
 ## Proposed (awaiting Avi)
 

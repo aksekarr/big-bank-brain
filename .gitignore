@@ -22,3 +22,10 @@ __pycache__/
 # Local eligibility and successful-processing state
 /processed-state.json
 /ready-for-processing.json
+
+# Local article AI extraction spike (generated semantics and call budget)
+/bbva-ai-spike-ledger.json
+/bbva-ai-extractions.json
+
+# Local Python environment for the optional AI SDK
+/.venv/

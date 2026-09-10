@@ -260,3 +260,129 @@ before output/state replacement. Publication dates are never estimated. Preparin
 list does not mark anything processed; an unchanged second preparation returns the
 same items until success is explicitly acknowledged. First preparation creates an
 empty processed-state file. Existing processed state is never changed by preparation.
+
+## BBVA article-level AI extraction (SDK installed; live approval pending)
+
+Safe, dependency-free metadata plan (does not fetch articles or call OpenAI):
+
+```sh
+python3 -B scripts/extract_bbva.py
+```
+
+**After Avi separately approves paid execution**, the live command will be:
+
+```sh
+.venv/bin/python -B scripts/extract_bbva.py --live --limit 3
+```
+
+Use `--limit 2` for two articles. It refreshes eligibility through the existing
+processing workflow, takes the newest eligible/unprocessed BBVA items only, and reuses
+`read_bbva.run` with an in-memory text consumer. Existing READ diagnostics remain the
+default; no second HTTP fetcher or HTML parser was introduced. READ failure or listing
+fallback causes no AI request and no processed acknowledgement in this proof. HTML
+introduction/key-points coverage remains distinct from a complete report.
+
+The official `openai` Python SDK **2.48.0** is installed in the Git-ignored `.venv`
+using the existing Python 3.9.6. `requirements-ai.txt` pins the SDK and its resolved
+transitive dependencies; no new dependency-management framework was added. To recreate
+this environment on a compatible Python installation:
+
+```sh
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-ai.txt
+```
+
+Run the complete offline suite (including installed-SDK tests):
+
+```sh
+.venv/bin/python -B -m unittest discover -s tests -v
+```
+
+The SDK's documented
+`client.responses.create` with `text.format.type=json_schema` and `strict=True` sends
+the schema; the local validator checks the same small schema using the standard library.
+No standalone schema-validation package or Pydantic-specific model layer is needed.
+Installed-SDK request serialization and response/refusal parsing pass tests using an
+in-memory HTTP transport with socket access blocked. Real API acceptance, account
+access and model output quality remain untested; paid execution still needs approval.
+
+Configure the key in **your own VS Code zsh terminal**, never in Codex chat or a source
+file. Obtain your API key privately from the OpenAI platform's API-key settings, then:
+
+```sh
+read -rs 'OPENAI_API_KEY?OpenAI API key: '
+export OPENAI_API_KEY
+```
+
+Paste at the hidden prompt and press Enter. The key itself is not part of shell
+command history and applies to this terminal session and its child processes. Do not
+use `echo`, `env` or debugging output to display it. After running, use
+`unset OPENAI_API_KEY`. No `.env` file or dotenv loader is needed. Existing `.env*`
+ignore rules remain in place. SDK debug logging (`OPENAI_LOG`) must be unset.
+
+The reviewed-for-installation configuration is `gpt-5.6-terra`, reasoning `low`,
+standard (`default`) service tier, no tools, no retries, a 60-second SDK timeout,
+`max_output_tokens=2000`, and `store=False`. The fixed API endpoint is
+`https://api.openai.com/v1`; environment proxies, HTTP redirects and SDK debug logging
+are disabled. Unsupported model/configuration errors stop; no alternative is selected.
+The model sees only supplied article-page text and useful title/institution/date context.
+Known metadata is retained by code, outside the model's semantic response.
+
+Semantic fields are `summary` (at most 60 words), `topics`, `claims`, `geographies`,
+`markets_or_asset_classes`, and nullable `time_horizon`. Lists may be empty where
+unsupported; at least one substantive claim is required for a successful proof.
+The prompt requires supported values, paraphrasing and no invented horizon. Local
+checks reject extra/missing fields, wrong types, bounds violations, overlong summaries
+and more than ten consecutive source words. These checks do not prove factual support;
+separate semantic verification and broader deterministic publication validation are
+still later tasks. Nothing here publishes model output.
+
+Only after READ, a completed/non-refused response, schema validation and safe output
+persistence succeed is `processing.acknowledge(..., 'succeeded', ...)` called. Failed
+articles stay unprocessed. Validated semantic output goes to ignored
+`bbva-ai-extractions.json`, alongside code-supplied metadata. No raw HTML, article text,
+request payload, response envelope or reasoning is saved or printed. An output-save
+success followed by a state-write failure leaves a saved extraction but an unprocessed
+item; another attempt may consume another allowance slot. Recovery beyond this tiny
+spike requires review, not an automatic retry loop.
+
+An ignored `bbva-ai-spike-ledger.json` reserves each attempt **before** the paid call.
+The maximum is **three actual model calls across invocations**. HTTP 401 authentication
+and HTTP 429 quota/rate-limit rejections without a model result release their slot and
+budget reservation, while remaining in the attempt audit history. A returned Responses
+API result consumes a slot even if refused, incomplete or later rejected by validation.
+Timeouts, unknown failures and interrupted requests retain a pending reservation until
+review because model execution is uncertain. There are no automatic retries.
+The ledger has no automatic reset. Do not delete it to get more calls without Avi's
+review. A directory lock serializes this command with local processing-state changes.
+The local reservation budget is $0.15 for the entire spike, stricter than a resettable
+daily allowance; three maximum-size reservations total $0.13968. This is a bounded
+spike guard, not the production cost-accounting implementation.
+
+Pricing checked 2026-09-11: [GPT-5.6 Terra](https://developers.openai.com/api/docs/models/gpt-5.6-terra)
+lists $2/M standard input and $12/M output tokens, with cache writes at 1.25x uncached
+input pricing. Reserve at $2.50/M input to cover that possibility. Each serialized
+request is limited to 8,000 UTF-8 bytes; use one input token per byte plus a 1,024-token
+framing allowance as a conservative estimate, and assume all 2,000 output tokens are
+used (including reasoning). That gives $0.04656 per call: **$0.09312 for two or
+$0.13968 for three**, before tax. This is an estimate, not a measured token count or
+a billing guarantee; the framing allowance and current pricing should be rechecked
+if the API changes. Oversized input is rejected, not silently truncated.
+
+The current plan selects the previously tested Argentina inflation, Europe ECB and
+Türkiye CBRT pages. Their last observed body lengths were 775, 635 and 1,496 characters.
+Using those lengths gives approximately 3,026, 2,864 and 3,734 serialized request bytes
+(including prompt/schema/metadata, approximating source characters as ASCII), or about
+$0.068 for two/$0.104 for three under the conservative calculation above. Fresh body
+sizes have not been fetched this task; live size checks enforce the larger bound.
+
+References: [strict structured outputs](https://developers.openai.com/api/docs/guides/structured-outputs),
+[Responses request limits](https://developers.openai.com/api/reference/cli/resources/responses/methods/create),
+[official SDK](https://developers.openai.com/api/docs/libraries).
+`store=False` disables stored Responses application state; it is not a promise of
+zero provider retention. OpenAI's applicable [data controls](https://developers.openai.com/api/docs/guides/your-data)
+still apply, as do the recorded BBVA source-use caveats.
+
+Tests use only fakes and synthetic HTML. SDK installation was subsequently approved
+and completed; no publisher fetch or real OpenAI call was made during this step. Synthesis, verification, frontend,
+scheduling and other-source AI processing remain unbuilt.
