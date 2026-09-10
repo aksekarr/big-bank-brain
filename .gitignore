@@ -18,3 +18,7 @@ __pycache__/
 /dedupe-seen.json
 /dedupe-new.json
 /.dedupe-*.tmp
+
+# Local eligibility and successful-processing state
+/processed-state.json
+/ready-for-processing.json

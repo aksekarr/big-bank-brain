@@ -217,3 +217,46 @@ coverage and retained source-use caveats. The new product decisions are document
 in `docs/DECISIONS.md` and `docs/SPEC.md`; older contrary proposal wording in historical
 instructions does not override Avi's explicit approvals. Other sources' READ adapters,
 production schemas, scheduling and deployment remain outside this spike.
+
+## Eligibility and successful-processing state
+
+Build a local ready list without fetching anything or calling AI:
+
+```sh
+python3 -B scripts/processing.py prepare
+```
+
+This uses the four current discovery snapshots and the existing dedupe validator and
+URL normalisation. It deliberately revisits discovered-but-unprocessed items even
+when `dedupe-new.json` is empty. Discovery's seen-state is not a record of successful
+READ/AI processing. `ready-for-processing.json` holds the selected metadata, preserving
+source attribution and URLs; `processed-state.json` maps successfully processed URLs
+to their first successful-processing timestamps. Both generated files are ignored.
+
+Only after a downstream task has actually succeeded, acknowledge its URL:
+
+```sh
+python3 -B scripts/processing.py record --url 'PUBLICATION_URL' --status succeeded
+```
+
+Use `--status failed` or `--status incomplete` for unsuccessful attempts; these never
+mark an item as processed. This command records a caller's result, not evidence that
+AI work happened. No real items were marked successful during this spike. Successful
+acknowledgements require membership in the ready output; repeated acknowledgements
+are harmless. Run `prepare` again to refresh the ready file after acknowledgements.
+
+State replacement is atomic, and a failed state write preserves its previous contents.
+Malformed state is rejected, never reset. The current macOS/Unix directory lock prevents
+overlapping commands; this is local state, not a production queue or database. Only
+successfully processed URLs are recorded; attempts, retries, model versions, production
+storage, AI processing and scheduling remain unbuilt. Items that disappear from all
+current discovery snapshots are not retained in a separate backlog.
+
+The eligibility window is **today plus the previous six calendar dates in
+Europe/London**, inclusive. On 10 September it includes 4–10 September. The clock
+uses the actual run time and London daylight-saving rules. Older, future and missing
+dates are excluded and counted in the output; malformed supplied dates fail the run
+before output/state replacement. Publication dates are never estimated. Preparing a
+list does not mark anything processed; an unchanged second preparation returns the
+same items until success is explicitly acknowledged. First preparation creates an
+empty processed-state file. Existing processed state is never changed by preparation.

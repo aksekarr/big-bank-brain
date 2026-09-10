@@ -79,7 +79,7 @@ def read_json(path):
                       parse_constant=invalid_constant)
 
 
-def load_discoveries(root):
+def load_discoveries(root, *, allow_missing_dates=False):
     unique = {}
     for filename, institution, source_name, endpoint, _ in SOURCES:
         data = read_json(root / filename)
@@ -105,12 +105,12 @@ def load_discoveries(root):
                 if raw.get('institution') != institution or raw.get('source_name') != source_name:
                     raise ValueError(f'{filename}: incorrect item attribution')
                 item['discovered_at'] = timestamp(raw.get('discovered_at'))
-            if 'publication_date' in raw:
+            if 'publication_date' in raw and not (allow_missing_dates and raw['publication_date'] is None):
                 published = text(raw['publication_date'])
                 if date.fromisoformat(published).isoformat() != published:
                     raise ValueError('Publication date must be YYYY-MM-DD')
                 item['publication_date'] = published
-            elif bbva:
+            elif bbva and not allow_missing_dates:
                 raise ValueError('BBVA item is missing its required publication date')
             excerpt_key = 'listing_summary' if bbva else 'excerpt'
             if excerpt_key in raw:

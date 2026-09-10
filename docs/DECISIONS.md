@@ -29,6 +29,7 @@ Confirmed only when Avi signs off.
 | 2026-09-10 | Start with one API provider and one capable, cost-conscious model across the AI steps; actual provider and model remain undecided | Prove quality and cost before adding separate cheap/strong model routing |
 | 2026-09-10 | Retain a separate AI verification pass checking synthesis against extracted source claims, alongside deterministic code validation | Check source support as well as structural correctness before publication |
 | 2026-09-10 | The first live AI-processing run considers only the latest 7 days, even when dedupe state is blank | Avoid processing an entire historical feed and incurring unnecessary cost |
+| 2026-09-10 | Seven-day eligibility means today plus the previous six calendar dates in Europe/London, inclusive; exclude missing and future publication dates rather than estimating them | Date-only discovery metadata needs an explicit boundary without inventing publication times |
 
 ## Proposed (awaiting Avi)
 
