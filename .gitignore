@@ -7,3 +7,9 @@
 
 # Generated local discovery snapshot
 /bbva-discovery.json
+/abn-amro-discovery.json
+/nyfed-lse-discovery.json
+/bis-discovery.json
+
+# Python interpreter caches
+__pycache__/
