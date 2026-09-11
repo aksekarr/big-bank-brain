@@ -93,7 +93,7 @@ def reject_source_copy(data, source_text):
             raise SpikeError('Output copies too much consecutive source text')
 
 
-def request_payload(item, source_text, *, instructions=INSTRUCTIONS):
+def request_payload(item, source_text, *, instructions=INSTRUCTIONS, max_request_bytes=MAX_REQUEST_BYTES):
     metadata = {key: item[key] for key in ['title', 'institution', 'publication_date']}
     payload = {'model': MODEL, 'reasoning': {'effort': REASONING},
                'instructions': instructions,
@@ -101,7 +101,7 @@ def request_payload(item, source_text, *, instructions=INSTRUCTIONS):
                'text': {'format': {'type': 'json_schema', 'name': 'article_extraction', 'strict': True, 'schema': SCHEMA}},
                'max_output_tokens': MAX_OUTPUT_TOKENS, 'tools': [], 'tool_choice': 'none',
                'store': False, 'service_tier': 'default'}
-    if len(json.dumps(payload, ensure_ascii=False).encode('utf-8')) > MAX_REQUEST_BYTES:
+    if len(json.dumps(payload, ensure_ascii=False).encode('utf-8')) > max_request_bytes:
         raise SpikeError('Input exceeds reviewed request-size cap; not truncating silently')
     return payload
 
@@ -131,7 +131,7 @@ def parse_response(response, source_text):
     return data
 
 
-def load_ledger(root, *, ledger_name=LEDGER):
+def load_ledger(root, *, ledger_name=LEDGER, reserve_micro_usd=RESERVE_MICRO_USD):
     path = root / ledger_name
     if not path.exists():
         return {'version': 1, 'attempts': []}
@@ -139,7 +139,7 @@ def load_ledger(root, *, ledger_name=LEDGER):
     if not isinstance(data, dict) or data.get('version') != 1 or not isinstance(data.get('attempts'), list):
         raise SpikeError('Invalid call ledger')
     for attempt in data['attempts']:
-        if not isinstance(attempt, dict) or attempt.get('reserved_micro_usd') != RESERVE_MICRO_USD:
+        if not isinstance(attempt, dict) or attempt.get('reserved_micro_usd') != reserve_micro_usd:
             raise SpikeError('Invalid budget reservation')
         dedupe.normalise_url(attempt.get('url'))
         dedupe.timestamp(attempt.get('reserved_at'))
@@ -169,13 +169,15 @@ def select(root, now, limit):
 
 
 def extract_one(client, item, source_text, root, now, ledger, *,
-                ledger_name=LEDGER, instructions=INSTRUCTIONS):
-    payload = request_payload(item, source_text, instructions=instructions)
-    if held_calls(ledger) >= MAX_CALLS or (held_calls(ledger)+1)*RESERVE_MICRO_USD > BUDGET_MICRO_USD:
+                ledger_name=LEDGER, instructions=INSTRUCTIONS,
+                max_request_bytes=MAX_REQUEST_BYTES, reserve_micro_usd=RESERVE_MICRO_USD,
+                budget_micro_usd=BUDGET_MICRO_USD):
+    payload = request_payload(item, source_text, instructions=instructions, max_request_bytes=max_request_bytes)
+    if held_calls(ledger) >= MAX_CALLS or (held_calls(ledger)+1)*reserve_micro_usd > budget_micro_usd:
         raise SpikeError('Three-call or spike budget limit reached; review required')
     # Persist before sending; release only a definite 401/429 rejection without a result.
     attempt = {'url': item['url'], 'reserved_at': now.isoformat(),
-               'reserved_micro_usd': RESERVE_MICRO_USD, 'outcome': 'pending'}
+               'reserved_micro_usd': reserve_micro_usd, 'outcome': 'pending'}
     ledger['attempts'].append(attempt)
     processing.write_json(ledger, root / ledger_name)
     try:

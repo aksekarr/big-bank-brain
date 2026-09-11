@@ -595,3 +595,115 @@ schema and metadata. UTF-8 and JSON escaping can increase this; exact source byt
 were not retained. The unchanged 8,000-byte actual-request guard stops before a call
 on oversized input, without truncation. Live size/quality remain unproven for BIS.
 No publisher fetch or paid API call was made during this extraction implementation.
+
+## Liberty Street Economics READ feasibility (no AI extraction)
+
+```sh
+.venv/bin/python -B scripts/read_nyfed_lse.py --limit 3
+```
+
+The command selects only currently eligible, unprocessed Liberty Street items from
+local discovery metadata, using the existing London seven-calendar-date window.
+It writes neither ready output nor processed state. An empty eligible set returns
+empty diagnostics without requesting robots or articles.
+
+On 2026-09-11, the saved snapshot and a fresh official RSS check both had zero
+eligible posts (window 5–11 September). The newest posts were dated 1–3 September.
+For structural feasibility only, these three older posts were passed directly to
+the reader; no eligibility exception or historical-processing CLI was introduced.
+No currently eligible article could be live-tested.
+
+The observed article-specific container is `div.ts-article-text` within `main`.
+The parser includes paragraphs, section headings and lists, excluding author bylines/
+biographies, citation/disclaimer blocks, related content, sharing controls, navigation,
+forms, newsletter modules, footer material, scripts, figures, tables and explicitly
+marked footnote blocks. It requires one closed, well-formed body container and
+substantive paragraph text. Existing size/timeout/polite-access limits are retained,
+robots is checked, and access failure/challenge stops subsequent article requests.
+No redirected, gated, PDF, chart or table content is retrieved.
+
+Historical structural samples, all HTML with no RSS fallback:
+- 3 September, Jackson Hole: Exploring the Financial Frontier:
+  7,995 characters / approximately 1,209 words.
+- 2 September, Are Central Banks Moving Out of Dollar Assets?:
+  9,964 characters / approximately 1,436 words.
+- 1 September, Businesses Are Using AI to Transform Work, Not Cut Jobs:
+  7,164 characters / approximately 1,141 words.
+
+All three share the same core container with varying paragraph lengths and page
+modules. They appear substantive enough for later extraction, but charts/figures,
+linked material and excluded footnotes are not captured. In-body methodology prose
+is retained when it uses the selected text elements; completeness of special boxes
+is not guaranteed. No silent truncation. Existing RSS excerpts are used only when
+HTML is denied, unavailable or structurally insufficient. The feed also exposes
+content:encoded, but fetching/parsing that alternative was unnecessary once HTML
+worked; no claim of equivalent content or tested structured full-text fallback.
+
+Metadata and provenance/count diagnostics are separate from the transient callback
+text. No raw HTML/text files, AI calls, schemas or processed acknowledgements are
+created. The existing six semantic fields still fit research commentary; attribution
+must respect that blog authors' views need not be official New York Fed positions.
+The general access licence does not remove the blog-specific recurring-distribution/
+archive caveat documented in SOURCES.md.
+
+No sample is currently eligible for a live AI test. If separately approved as a
+historical quality test, the businesses/AI post is the smallest of these samples and
+offers a concrete empirical topic. All three would exceed the current 8,000-byte
+complete AI-request cap after prompt/schema overhead; that guard has not been changed.
+Prefer a new eligible, shorter post for the eventual first call, or seek explicit
+review of size and historical-test constraints before proceeding.
+
+Offline tests use synthetic HTML/mocked transport, including content isolation,
+malformed pages, denied access, RSS fallback, deterministic metadata and no writes.
+Run the full suite with `.venv/bin/python -B -m unittest discover -s tests -v`.
+
+## Liberty Street extraction (offline-complete; live proof pending)
+
+The subsequent sizing decision supersedes the earlier 8,000-byte limitation and
+historical-test suggestion above: Liberty alone now permits a 16,000-byte complete
+request. Historical samples remain diagnostics only, with no eligibility override.
+BBVA/ABN/BIS remain at 8,000 bytes with their original reservations and budgets.
+
+```sh
+.venv/bin/python -B scripts/extract_nyfed_lse.py --limit 1
+```
+
+This default preview is metadata-only, with no network or state writes. Once a
+naturally eligible unprocessed article exists and Avi authorises one paid call:
+
+```sh
+.venv/bin/python -B scripts/extract_nyfed_lse.py --live --limit 1
+```
+
+Optional `--url 'EXACT_DISCOVERED_URL'` selects a specific eligible, unprocessed post.
+There is no force, historical or backfill exception. Only limit 1 is accepted.
+The current preview selects nothing; Liberty live extraction is not yet proven.
+
+The wrapper reuses the existing schema/client/validation and call accounting.
+Small optional shared-helper arguments carry Liberty's request ceiling, reservation
+and budget; defaults for other sources are unchanged. No schema, framework or chunking.
+The source prompt preserves author attribution (“the authors find”, “the post argues”)
+and explicitly rejects inferring an official New York Fed position from publication.
+This is a prompt requirement, not a guarantee of semantic quality; live review remains.
+
+The existing conservative formula yields:
+(16,000 + 1,024) × $2.50/million + 2,000 × $12/million = **$0.06656 per call**.
+Three reservations total **$0.19968**, within the **$0.20** Liberty spike ceiling.
+These reuse the earlier pricing assumptions, not measured billing or new price research.
+The 16,000-byte guard counts the existing full JSON serialization with UTF-8 encoding;
+oversize input fails before sending, without truncation. No automatic retries.
+401/429 rejections release slots but retain audit history; returned results consume
+slots, and uncertain outcomes remain reserved until review.
+
+Ignored runtime files are `nyfed-lse-ai-spike-ledger.json` and
+`nyfed-lse-ai-extractions.json`. An absent ledger means zero attempts. Existing
+source ledgers are neither migrated nor modified. Results keep the six semantic
+fields separate from institution/source, title, URL, date, model/time and READ
+provenance, fallback status, character/word counts and incomplete-content flags.
+Raw publisher content stays in memory. Only validated, successfully stored semantics
+permit a processed-state acknowledgement; discovery-seen is not AI-processed.
+
+Offline tests include request/schema/attribution construction, exact size boundaries,
+budget enforcement, response failures, no retries, eligibility, no raw persistence
+and preserved existing-source defaults. No publisher fetch or OpenAI call occurred
+during this extraction implementation.

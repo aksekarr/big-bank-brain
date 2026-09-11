@@ -37,3 +37,7 @@ __pycache__/
 # Separate BIS AI spike results and budget
 /bis-ai-spike-ledger.json
 /bis-ai-extractions.json
+
+# Separate Liberty Street AI spike results and budget
+/nyfed-lse-ai-spike-ledger.json
+/nyfed-lse-ai-extractions.json
