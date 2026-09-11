@@ -1,0 +1,293 @@
+{
+  "version": 1,
+  "model": "gpt-5.6-terra",
+  "generated_at": "2026-09-11T01:10:22.098596+00:00",
+  "window": {
+    "timezone": "Europe/London",
+    "start_date": "2026-09-05",
+    "end_date": "2026-09-11"
+  },
+  "request_bytes": 13510,
+  "coverage": {
+    "article_count": 5,
+    "institutions": [
+      "ABN AMRO",
+      "BBVA Research",
+      "Bank for International Settlements"
+    ]
+  },
+  "articles": [
+    {
+      "article_ref": "a1",
+      "institution": "BBVA Research",
+      "source_name": "BBVA Research",
+      "title": "Argentina | August inflation: 1.7% MoM, the lowest in 14 months",
+      "url": "https://www.bbvaresearch.com/en/publicaciones/argentina-august-inflation-17-mom-the-lowest-in-14-months/",
+      "publication_date": "2026-09-10",
+      "claims": [
+        {
+          "ref": "a1:c1",
+          "text": "August headline inflation was 1.7% month-on-month, down from 2.1% in July and in line with expectations."
+        },
+        {
+          "ref": "a1:c2",
+          "text": "Core inflation was unchanged at 1.8% month-on-month and 32% year-on-year."
+        },
+        {
+          "ref": "a1:c3",
+          "text": "Regulated prices rose 2.2% month-on-month; housing, water, electricity and gas services rose 2.8%."
+        },
+        {
+          "ref": "a1:c4",
+          "text": "Seasonal prices declined 0.9% month-on-month after rising 4.5% in July, reflecting lower tourism-related prices."
+        },
+        {
+          "ref": "a1:c5",
+          "text": "BBVA Research maintains a 29% inflation forecast for 2026, with a slight upward bias for the rest of the year."
+        },
+        {
+          "ref": "a1:c6",
+          "text": "BBVA Research projects September inflation of 1.6% month-on-month and a 1.55% monthly average for the remainder of 2026."
+        }
+      ],
+      "read_depth": {
+        "scope": "BBVA HTML introduction and key points; not complete linked report"
+      }
+    },
+    {
+      "article_ref": "a2",
+      "institution": "BBVA Research",
+      "source_name": "BBVA Research",
+      "title": "Europe | ECB hikes, December looms larger",
+      "url": "https://www.bbvaresearch.com/en/publicaciones/europe-ecb-hikes-december-looms-larger/",
+      "publication_date": "2026-09-10",
+      "claims": [
+        {
+          "ref": "a2:c1",
+          "text": "The ECB raised rates by 25bp to 2.50% in a unanimous decision."
+        },
+        {
+          "ref": "a2:c2",
+          "text": "The ECB provided no guidance on its next policy move."
+        },
+        {
+          "ref": "a2:c3",
+          "text": "ECB projections revised inflation higher and keep it above target well into 2028."
+        },
+        {
+          "ref": "a2:c4",
+          "text": "ECB projections indicate a relatively upbeat growth outlook."
+        },
+        {
+          "ref": "a2:c5",
+          "text": "BBVA Research expects a further 25bp rate increase toward year-end, lifting the deposit rate to 2.75%."
+        },
+        {
+          "ref": "a2:c6",
+          "text": "BBVA Research sees upside risk to rates if conflict and the energy shock persist."
+        }
+      ],
+      "read_depth": {
+        "scope": "BBVA HTML introduction and key points; not complete linked report"
+      }
+    },
+    {
+      "article_ref": "a3",
+      "institution": "BBVA Research",
+      "source_name": "BBVA Research",
+      "title": "Türkiye | Caution Returns to the Fore at the CBRT",
+      "url": "https://www.bbvaresearch.com/en/publicaciones/turkiye-caution-returns-to-the-fore-at-the-cbrt/",
+      "publication_date": "2026-09-10",
+      "claims": [
+        {
+          "ref": "a3:c1",
+          "text": "The CBRT left its policy rate at 37% and its interest-rate corridor at 35.5%-40%, matching market consensus."
+        },
+        {
+          "ref": "a3:c2",
+          "text": "The CBRT cited weak domestic demand and limited transmission of supply shocks to prices, while identifying high energy prices as an upside inflation risk."
+        },
+        {
+          "ref": "a3:c3",
+          "text": "BBVA Research nowcasts September CPI inflation slightly above 2% month-on-month, or just under 2% on a seasonally adjusted basis."
+        },
+        {
+          "ref": "a3:c4",
+          "text": "BBVA Research expects a 100-basis-point policy-rate cut at the October 22 MPC meeting if energy prices normalize below $90 per barrel."
+        },
+        {
+          "ref": "a3:c5",
+          "text": "BBVA Research expects annual inflation to decline to about 30% but remain sticky around that level until late Q1 2027, with the policy rate at 36% until disinflation improves more clearly."
+        }
+      ],
+      "read_depth": {
+        "scope": "BBVA HTML introduction and key points; not complete linked report"
+      }
+    },
+    {
+      "article_ref": "a4",
+      "institution": "ABN AMRO",
+      "source_name": "ABN AMRO Group Economics",
+      "title": "Spotlight - US Midterms – Trump can veto, Democrats cannot",
+      "url": "https://www.abnamro.com/research/en/our-research/spotlight-us-midterms-trump-can-veto-democrats-cannot",
+      "publication_date": "2026-09-07",
+      "claims": [
+        {
+          "ref": "a4:c1",
+          "text": "ABN AMRO’s base case is a Democratic House and Republican Senate."
+        },
+        {
+          "ref": "a4:c2",
+          "text": "It expects Democrats to gain ground, while a Republican congressional sweep is becoming less likely."
+        },
+        {
+          "ref": "a4:c3",
+          "text": "The bank does not expect election scenarios to materially alter the US economic path."
+        },
+        {
+          "ref": "a4:c4",
+          "text": "It expects trade, tariffs, immigration, domestic policy, energy policy and deregulation to remain priorities in the second half of Trump’s term."
+        },
+        {
+          "ref": "a4:c5",
+          "text": "Fiscal expansion would be fastest with Republican control of Congress and slowest with a Democratic sweep."
+        },
+        {
+          "ref": "a4:c6",
+          "text": "A divided Congress would mean legislative gridlock alongside continued executive-led deregulation and trade policy."
+        }
+      ],
+      "read_depth": {
+        "text_source": "article_html",
+        "listing_fallback_used": false,
+        "charts_tables_linked_reports_extracted": false,
+        "character_count": 3739,
+        "approximate_word_count": 585
+      }
+    },
+    {
+      "article_ref": "a5",
+      "institution": "Bank for International Settlements",
+      "source_name": "BIS and FSI publications",
+      "title": "What determines banks' excess demand for reserves?",
+      "url": "https://www.bis.org/publications/working-paper-1376-what-determines-banks-excess-demand-reserves",
+      "publication_date": "2026-09-07",
+      "claims": [
+        {
+          "ref": "a5:c1",
+          "text": "For banks active in interbank markets, excess reserves rise with payment-flow volatility and interbank borrowing costs."
+        },
+        {
+          "ref": "a5:c2",
+          "text": "Active banks hold less excess reserves when aggregate interbank activity is higher."
+        },
+        {
+          "ref": "a5:c3",
+          "text": "Banks inactive in interbank markets also raise reserves when payment flows are more volatile, and their reserve holdings are more persistent."
+        },
+        {
+          "ref": "a5:c4",
+          "text": "The study finds no robust evidence that liquidity regulation increases demand for excess reserves."
+        },
+        {
+          "ref": "a5:c5",
+          "text": "The researchers view interbank-market functioning and fragmentation as important determinants of aggregate reserve demand."
+        }
+      ],
+      "read_depth": {
+        "text_source": "publication_page_html",
+        "rss_fallback_used": false,
+        "complete_paper_extracted": false,
+        "charts_tables_linked_reports_extracted": false,
+        "character_count": 3379,
+        "approximate_word_count": 513
+      }
+    }
+  ],
+  "synthesis": {
+    "headline": "BBVA’s rate outlooks depend on inflation and energy conditions, while BIS research links interbank conditions to reserve demand",
+    "overview": "Recent research highlights inflation developments in Argentina and conditional monetary-policy paths in Europe and Türkiye, with inflation and energy prices central to the outlook. Separate BIS research links banks’ reserve buffers to payment uncertainty and interbank-market conditions, while ABN AMRO sees US midterm outcomes affecting the pace and mechanism of policy more than the broad economic path.",
+    "themes": [
+      {
+        "title": "Inflation progress is uneven and monetary-policy outlooks remain conditional",
+        "points": [
+          {
+            "text": "In Argentina, August headline inflation slowed to 1.7% month-on-month from 2.1% in July. Seasonal prices declined 0.9% month-on-month after their 4.5% July rise. Core inflation, however, was unchanged at 1.8% month-on-month and 32% year-on-year, while regulated prices rose 2.2%. BBVA Research retains its 29% 2026 inflation forecast, with a slight upward bias, and projects 1.6% monthly inflation in September and a 1.55% average for the rest of the year.",
+            "references": [
+              "a1:c1",
+              "a1:c2",
+              "a1:c3",
+              "a1:c4",
+              "a1:c5",
+              "a1:c6"
+            ]
+          },
+          {
+            "text": "The ECB raised its policy rate by 25 basis points to 2.50% unanimously but gave no indication of its next move. Its projections raised the inflation outlook and leave inflation above target well into 2028. The projections also indicate a relatively upbeat growth outlook. BBVA Research expects another 25bp increase toward year-end, to a 2.75% deposit rate, and sees further upside risk to rates if conflict and the energy shock persist.",
+            "references": [
+              "a2:c1",
+              "a2:c2",
+              "a2:c3",
+              "a2:c4",
+              "a2:c5",
+              "a2:c6"
+            ]
+          },
+          {
+            "text": "Türkiye’s central bank left its policy rate at 37%, citing weak domestic demand and limited pass-through from supply shocks while identifying high energy prices as an upside risk to inflation. BBVA Research expects a 100bp cut on 22 October if energy prices normalise below $90 per barrel. BBVA Research also expects annual inflation to fall to roughly 30% but remain sticky near that level until late in the first quarter of 2027, with the policy rate at 36% until disinflation becomes clearer.",
+            "references": [
+              "a3:c1",
+              "a3:c2",
+              "a3:c4",
+              "a3:c5"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Payment uncertainty and interbank-market frictions can raise banks’ reserve buffers",
+        "points": [
+          {
+            "text": "The BIS study finds that banks active in interbank markets hold more excess reserves when payment flows are more volatile and interbank borrowing is costlier, while they hold less when aggregate interbank activity is higher. The authors identify interbank-market functioning and fragmentation as important determinants of aggregate reserve demand.",
+            "references": [
+              "a5:c1",
+              "a5:c2",
+              "a5:c5"
+            ]
+          },
+          {
+            "text": "Banks that are inactive in interbank markets also increase reserves as payment flows become more volatile, and their reserve holdings are more persistent. The study finds no robust evidence that liquidity regulation increases excess-reserve demand. Our inference from these findings is that thinner or more fragmented interbank markets may increase the incentive for banks to self-insure with reserve balances rather than rely on borrowing from peers.",
+            "references": [
+              "a5:c3",
+              "a5:c4",
+              "a5:c5",
+              "a5:c1",
+              "a5:c2"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "US midterm outcomes may alter policy delivery and fiscal pace more than the broad economic path",
+        "points": [
+          {
+            "text": "ABN AMRO’s base case is a Democratic House and Republicans retaining the Senate; it expects Democrats to gain ground and judges a Republican congressional sweep less likely. The bank does not expect alternative election outcomes to materially alter the US economic path.",
+            "references": [
+              "a4:c1",
+              "a4:c2",
+              "a4:c3"
+            ]
+          },
+          {
+            "text": "ABN AMRO expects trade, tariffs, immigration, domestic policy, energy policy and deregulation to remain priorities in the second half of Trump’s term. It expects a divided Congress to produce legislative gridlock alongside executive-led deregulation and trade policy; fiscal expansion would be fastest under Republican congressional control and slowest under a Democratic sweep.",
+            "references": [
+              "a4:c4",
+              "a4:c5",
+              "a4:c6"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
