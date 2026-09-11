@@ -1,0 +1,88 @@
+{
+  "version": 1,
+  "status": "candidate fixtures for human review; labels never model input",
+  "base_snapshot_sha256": "1415f65664716383d1161222c8303255a2ee77ba9241948532cbe91f5974ab69",
+  "preserved_metadata_sha256": "11e31529fb19a0aa4d44f978f1d70d986bfdc96e1180d7f8a4b2500144f0c214",
+  "cases": [
+    {
+      "case_id": "clean",
+      "fixture": "clean.json",
+      "expected_overall": "pass",
+      "expected_affected_targets": [],
+      "category": "clean_pass",
+      "mutation": "Repair known support defects without changing source claims.",
+      "rationale": "Candidate clean baseline; human review required.",
+      "fixture_sha256": "1ce323d6f441214af8b2de8dcc962f6b088d779f774db2137b74e8fc224f84dd"
+    },
+    {
+      "case_id": "turkiye_conditionality",
+      "fixture": "turkiye_conditionality.json",
+      "expected_overall": "fail",
+      "expected_affected_targets": [
+        "t1:p3"
+      ],
+      "category": "clear_fail",
+      "mutation": "Restore only if and otherwise in the rate/inflation outlook.",
+      "rationale": "Strengthens a condition and invents an alternative scenario.",
+      "fixture_sha256": "4128775ffa26f0bba6b2c38c9077c2e00016c4e1e060bd75fb67f2949f800b64"
+    },
+    {
+      "case_id": "argentina_overview",
+      "fixture": "argentina_overview.json",
+      "expected_overall": "fail",
+      "expected_affected_targets": [
+        "overview"
+      ],
+      "category": "clear_fail",
+      "mutation": "Restore original monetary-policy framing for Argentina.",
+      "rationale": "Argentina claims establish inflation, not a policy path.",
+      "fixture_sha256": "9e21fed6b213fdc48903432c0d3588e3acb6702ab72bd4140000025add6c99bf"
+    },
+    {
+      "case_id": "bis_reference_support",
+      "fixture": "bis_reference_support.json",
+      "expected_overall": "review/provisional_fail",
+      "expected_affected_targets": [
+        "t2:p2"
+      ],
+      "category": "review",
+      "mutation": "Remove a5:c1 and a5:c2 from the behavioural point citations only.",
+      "rationale": "Attached support for the borrowing/substitution mechanism is judgement-sensitive.",
+      "fixture_sha256": "d3007d8b7dc67473cec792054d7a0bdb251810bbbe43fedc434c3eb311930195"
+    },
+    {
+      "case_id": "ecb_despite",
+      "fixture": "ecb_despite.json",
+      "expected_overall": "review/borderline",
+      "expected_affected_targets": [
+        "t1:p2"
+      ],
+      "category": "review",
+      "mutation": "Replace neutral coexistence with original despite contrast.",
+      "rationale": "Unsupported contrast may be meaningful drift or loose editorial wording.",
+      "fixture_sha256": "fb45e7abe24a23d77c3d58a95cf1b74c1f42d3ec5c666edcb03d64c403e311b4"
+    },
+    {
+      "case_id": "abn_retain",
+      "fixture": "abn_retain.json",
+      "expected_overall": "fail",
+      "expected_affected_targets": [
+        "t3:p1"
+      ],
+      "category": "clear_fail",
+      "mutation": "Change Republican Senate to Republicans retaining the Senate; leave Democratic House unchanged.",
+      "rationale": "Retain introduces unsupported incumbency/continuity.",
+      "fixture_sha256": "e49a26e24da2bdd10f3dce78a9f02ae9566a1a7c12dadcf0aa4012f04d24a88e"
+    },
+    {
+      "case_id": "harmless_paraphrase",
+      "fixture": "harmless_paraphrase.json",
+      "expected_overall": "pass",
+      "expected_affected_targets": [],
+      "category": "paraphrase_pass",
+      "mutation": "Paraphrase forecast retention, unchanged rate and quarter; reverse fiscal-comparison order.",
+      "rationale": "Facts, conditions, references and implications unchanged.",
+      "fixture_sha256": "bf6d8b6c63c126a6de5e26cb663fe7956e230639fd8961f3a47948478ad56816"
+    }
+  ]
+}
