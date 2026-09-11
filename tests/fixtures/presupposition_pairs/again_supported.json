@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "articles": [
+    {
+      "article_ref": "a1",
+      "institution": "Synthetic Research",
+      "source_name": "Synthetic evidence",
+      "title": "Synthetic research note",
+      "publication_date": "2026-09-11",
+      "claims": [
+        {
+          "ref": "a1:c1",
+          "text": "The company will increase investment next year. The company increased investment last year."
+        }
+      ]
+    }
+  ],
+  "synthesis": {
+    "headline": "Research assessment",
+    "overview": "The company will increase investment next year.",
+    "themes": [
+      {
+        "title": "Research assessment",
+        "points": [
+          {
+            "text": "The company will increase investment again.",
+            "references": [
+              "a1:c1"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,226 @@
+{
+  "version": 1,
+  "status": "Synthetic candidate matched pairs for human review; no live execution",
+  "expected_target": "t1:p1",
+  "pairs": [
+    {
+      "trigger": "retain",
+      "members": [
+        "retain_supported",
+        "retain_unsupported"
+      ]
+    },
+    {
+      "trigger": "continue",
+      "members": [
+        "continue_supported",
+        "continue_unsupported"
+      ]
+    },
+    {
+      "trigger": "remain",
+      "members": [
+        "remain_supported",
+        "remain_unsupported"
+      ]
+    },
+    {
+      "trigger": "return",
+      "members": [
+        "return_supported",
+        "return_unsupported"
+      ]
+    },
+    {
+      "trigger": "still",
+      "members": [
+        "still_supported",
+        "still_unsupported"
+      ]
+    },
+    {
+      "trigger": "again",
+      "members": [
+        "again_supported",
+        "again_unsupported"
+      ]
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "retain_supported",
+      "pair_id": "retain",
+      "trigger_class": "retain",
+      "candidate_sentence": "The firm expects to retain its leading position.",
+      "implied_prior_state": "The firm already holds the leading position.",
+      "expected_verdict": "pass",
+      "category": "supported_control",
+      "rationale": "Evidence explicitly supplies the prior state.",
+      "expected_affected_target": null,
+      "fixture": "retain_supported.json",
+      "fixture_sha256": "a1c800972cb28810749e4ce531ff3d43a8853b8cdd7014e2554293f050f6925a"
+    },
+    {
+      "case_id": "retain_unsupported",
+      "pair_id": "retain",
+      "trigger_class": "retain",
+      "candidate_sentence": "The firm expects to retain its leading position.",
+      "implied_prior_state": "The firm already holds the leading position.",
+      "expected_verdict": "fail",
+      "category": "unsupported_presupposition",
+      "rationale": "Evidence states the main proposition but omits, rather than contradicts, the prior state.",
+      "expected_affected_target": "t1:p1",
+      "fixture": "retain_unsupported.json",
+      "fixture_sha256": "2db17aee725fff07037d873391fc439105085f15c30d86c56257cba86c02bf5d"
+    },
+    {
+      "case_id": "continue_supported",
+      "pair_id": "continue",
+      "trigger_class": "continue",
+      "candidate_sentence": "Borrowing costs will continue rising.",
+      "implied_prior_state": "Borrowing costs are already rising.",
+      "expected_verdict": "pass",
+      "category": "supported_control",
+      "rationale": "Evidence explicitly supplies the prior state.",
+      "expected_affected_target": null,
+      "fixture": "continue_supported.json",
+      "fixture_sha256": "628434ac37fd1ef533379d40163ae9f57b523c2d94d68ced3cfcb403bad7a8fb"
+    },
+    {
+      "case_id": "continue_unsupported",
+      "pair_id": "continue",
+      "trigger_class": "continue",
+      "candidate_sentence": "Borrowing costs will continue rising.",
+      "implied_prior_state": "Borrowing costs are already rising.",
+      "expected_verdict": "fail",
+      "category": "unsupported_presupposition",
+      "rationale": "Evidence states the main proposition but omits, rather than contradicts, the prior state.",
+      "expected_affected_target": "t1:p1",
+      "fixture": "continue_unsupported.json",
+      "fixture_sha256": "31f7e8f178abf89b1c08f6934c7b91c4e98252a8470d1e107da8bcd4f3380a8f"
+    },
+    {
+      "case_id": "remain_supported",
+      "pair_id": "remain",
+      "trigger_class": "remain",
+      "candidate_sentence": "Demand is expected to remain weak.",
+      "implied_prior_state": "Demand is already weak.",
+      "expected_verdict": "pass",
+      "category": "supported_control",
+      "rationale": "Evidence explicitly supplies the prior state.",
+      "expected_affected_target": null,
+      "fixture": "remain_supported.json",
+      "fixture_sha256": "19237cbbdf8871b89ae38a3e22db8549821b7c8704fc45cda1a49bd8a46a445f"
+    },
+    {
+      "case_id": "remain_unsupported",
+      "pair_id": "remain",
+      "trigger_class": "remain",
+      "candidate_sentence": "Demand is expected to remain weak.",
+      "implied_prior_state": "Demand is already weak.",
+      "expected_verdict": "fail",
+      "category": "unsupported_presupposition",
+      "rationale": "Evidence states the main proposition but omits, rather than contradicts, the prior state.",
+      "expected_affected_target": "t1:p1",
+      "fixture": "remain_unsupported.json",
+      "fixture_sha256": "ebafa85e7bb449a49edffc96b2960ba3755e602d3b9f9db9b394c63ed8175f75"
+    },
+    {
+      "case_id": "return_supported",
+      "pair_id": "return",
+      "trigger_class": "return",
+      "candidate_sentence": "Margins are expected to return to 10%.",
+      "implied_prior_state": "Margins previously reached 10%.",
+      "expected_verdict": "pass",
+      "category": "supported_control",
+      "rationale": "Evidence explicitly supplies the prior state.",
+      "expected_affected_target": null,
+      "fixture": "return_supported.json",
+      "fixture_sha256": "a2653bd33c941eddbc0b5613cc4cbf45fea68183bc826aa1ecd9db0a7187cedf"
+    },
+    {
+      "case_id": "return_unsupported",
+      "pair_id": "return",
+      "trigger_class": "return",
+      "candidate_sentence": "Margins are expected to return to 10%.",
+      "implied_prior_state": "Margins previously reached 10%.",
+      "expected_verdict": "fail",
+      "category": "unsupported_presupposition",
+      "rationale": "Evidence states the main proposition but omits, rather than contradicts, the prior state.",
+      "expected_affected_target": "t1:p1",
+      "fixture": "return_unsupported.json",
+      "fixture_sha256": "61cbd40924b2a0dc830bd5c29f1933d44eb28c7efec3c0ebb842ea2ddadb76f0"
+    },
+    {
+      "case_id": "still_supported",
+      "pair_id": "still",
+      "trigger_class": "still",
+      "candidate_sentence": "Households are still reducing debt.",
+      "implied_prior_state": "Households were previously reducing debt.",
+      "expected_verdict": "pass",
+      "category": "supported_control",
+      "rationale": "Evidence explicitly supplies the prior state.",
+      "expected_affected_target": null,
+      "fixture": "still_supported.json",
+      "fixture_sha256": "1bbce64b5bd8150762de5f1c9b7b4604b98b227d775c43ff3489cdf653905d1e"
+    },
+    {
+      "case_id": "still_unsupported",
+      "pair_id": "still",
+      "trigger_class": "still",
+      "candidate_sentence": "Households are still reducing debt.",
+      "implied_prior_state": "Households were previously reducing debt.",
+      "expected_verdict": "fail",
+      "category": "unsupported_presupposition",
+      "rationale": "Evidence states the main proposition but omits, rather than contradicts, the prior state.",
+      "expected_affected_target": "t1:p1",
+      "fixture": "still_unsupported.json",
+      "fixture_sha256": "4c4b69e6ce9e342a35a6c0acd4a3298a82e44fb518fbf5c35ab5e0751b90c089"
+    },
+    {
+      "case_id": "again_supported",
+      "pair_id": "again",
+      "trigger_class": "again",
+      "candidate_sentence": "The company will increase investment again.",
+      "implied_prior_state": "The company increased investment previously.",
+      "expected_verdict": "pass",
+      "category": "supported_control",
+      "rationale": "Evidence explicitly supplies the prior state.",
+      "expected_affected_target": null,
+      "fixture": "again_supported.json",
+      "fixture_sha256": "235db1de15292fe846730d96d059a6da7499c23a9a2dc8205cc4c4ade9c17dc4"
+    },
+    {
+      "case_id": "again_unsupported",
+      "pair_id": "again",
+      "trigger_class": "again",
+      "candidate_sentence": "The company will increase investment again.",
+      "implied_prior_state": "The company increased investment previously.",
+      "expected_verdict": "fail",
+      "category": "unsupported_presupposition",
+      "rationale": "Evidence states the main proposition but omits, rather than contradicts, the prior state.",
+      "expected_affected_target": "t1:p1",
+      "fixture": "again_unsupported.json",
+      "fixture_sha256": "2fe47000888370c916a2499802d1b96fe72816ff065bfc5b67b3559733c04c73"
+    }
+  ],
+  "historical_fixture_sha256": {
+    "verifier_eval/README.md": "8371a601da4ee750758026712a3903a885873b612f5eef9e497de39166fdf54b",
+    "verifier_eval/abn_retain.json": "e49a26e24da2bdd10f3dce78a9f02ae9566a1a7c12dadcf0aa4012f04d24a88e",
+    "verifier_eval/argentina_overview.json": "9e21fed6b213fdc48903432c0d3588e3acb6702ab72bd4140000025add6c99bf",
+    "verifier_eval/bis_reference_support.json": "d3007d8b7dc67473cec792054d7a0bdb251810bbbe43fedc434c3eb311930195",
+    "verifier_eval/clean.json": "1ce323d6f441214af8b2de8dcc962f6b088d779f774db2137b74e8fc224f84dd",
+    "verifier_eval/ecb_despite.json": "fb45e7abe24a23d77c3d58a95cf1b74c1f42d3ec5c666edcb03d64c403e311b4",
+    "verifier_eval/harmless_paraphrase.json": "bf6d8b6c63c126a6de5e26cb663fe7956e230639fd8961f3a47948478ad56816",
+    "verifier_eval/manifest.json": "aaafe59cd1d73820aadd54f2bac823d7dc1f7639e9a0c53eff1d5ec76a2d0277",
+    "verifier_eval/turkiye_conditionality.json": "4128775ffa26f0bba6b2c38c9077c2e00016c4e1e060bd75fb67f2949f800b64",
+    "verifier_eval_v2/abn_retain.json": "4ccaba0f81bda4285bc70b7ced27979f47336ec339fc7e5d4b47f872128c1baf",
+    "verifier_eval_v2/argentina_overview.json": "477a85165d3dfe325562b6f14d413b76040af5c39dfc405af4ae5f730f658d2c",
+    "verifier_eval_v2/bis_reference_support.json": "f7eec888fdbd459088c7c4fb85ff2dccf886e36c1624b5d9cb8ab8bfe1105771",
+    "verifier_eval_v2/clean.json": "7bd55507a16248c8053e0fab48d11ec92020226dfe9f7aa3ec15255b9e130ed2",
+    "verifier_eval_v2/ecb_despite.json": "9fd6d577ca354d36d5699192cbb286f2932d5a4a86892773e152f88ceb57d979",
+    "verifier_eval_v2/harmless_paraphrase.json": "4dd176b562b94e0503a5e70bd649e5ca68f054fc377985752f8660ad3e4a9da7",
+    "verifier_eval_v2/manifest.json": "e32d0c1a4c60ca53f4084314cfd10b2019c8122fafef92dfa92aad1d8aa480bd",
+    "verifier_eval_v2/turkiye_conditionality.json": "1999fbebfe4186dfe5da54f7b72e34cd8186c323bb39cdbc4dfa26717521cf50"
+  }
+}

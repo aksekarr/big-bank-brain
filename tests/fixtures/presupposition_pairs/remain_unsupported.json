@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "articles": [
+    {
+      "article_ref": "a1",
+      "institution": "Synthetic Research",
+      "source_name": "Synthetic evidence",
+      "title": "Synthetic research note",
+      "publication_date": "2026-09-11",
+      "claims": [
+        {
+          "ref": "a1:c1",
+          "text": "Demand is expected to be weak next quarter."
+        }
+      ]
+    }
+  ],
+  "synthesis": {
+    "headline": "Research assessment",
+    "overview": "Demand is expected to be weak next quarter.",
+    "themes": [
+      {
+        "title": "Research assessment",
+        "points": [
+          {
+            "text": "Demand is expected to remain weak.",
+            "references": [
+              "a1:c1"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "articles": [
+    {
+      "article_ref": "a1",
+      "institution": "Synthetic Research",
+      "source_name": "Synthetic evidence",
+      "title": "Synthetic research note",
+      "publication_date": "2026-09-11",
+      "claims": [
+        {
+          "ref": "a1:c1",
+          "text": "The firm expects to hold the leading position next year. The firm currently holds the leading position."
+        }
+      ]
+    }
+  ],
+  "synthesis": {
+    "headline": "Research assessment",
+    "overview": "The firm expects to hold the leading position next year.",
+    "themes": [
+      {
+        "title": "Research assessment",
+        "points": [
+          {
+            "text": "The firm expects to retain its leading position.",
+            "references": [
+              "a1:c1"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

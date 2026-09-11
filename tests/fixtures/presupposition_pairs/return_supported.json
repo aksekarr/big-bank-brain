@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "articles": [
+    {
+      "article_ref": "a1",
+      "institution": "Synthetic Research",
+      "source_name": "Synthetic evidence",
+      "title": "Synthetic research note",
+      "publication_date": "2026-09-11",
+      "claims": [
+        {
+          "ref": "a1:c1",
+          "text": "Margins are currently 8% and are expected to reach 10% next year. Margins were 10% two years ago."
+        }
+      ]
+    }
+  ],
+  "synthesis": {
+    "headline": "Research assessment",
+    "overview": "Margins are currently 8% and are expected to reach 10% next year.",
+    "themes": [
+      {
+        "title": "Research assessment",
+        "points": [
+          {
+            "text": "Margins are expected to return to 10%.",
+            "references": [
+              "a1:c1"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

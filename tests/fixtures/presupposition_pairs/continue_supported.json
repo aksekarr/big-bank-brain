@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "articles": [
+    {
+      "article_ref": "a1",
+      "institution": "Synthetic Research",
+      "source_name": "Synthetic evidence",
+      "title": "Synthetic research note",
+      "publication_date": "2026-09-11",
+      "claims": [
+        {
+          "ref": "a1:c1",
+          "text": "Borrowing costs will rise over the next quarter. Borrowing costs are currently rising."
+        }
+      ]
+    }
+  ],
+  "synthesis": {
+    "headline": "Research assessment",
+    "overview": "Borrowing costs will rise over the next quarter.",
+    "themes": [
+      {
+        "title": "Research assessment",
+        "points": [
+          {
+            "text": "Borrowing costs will continue rising.",
+            "references": [
+              "a1:c1"
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}
