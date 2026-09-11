@@ -193,6 +193,23 @@ class VerifierTests(unittest.TestCase):
         x['targets'][-1]['issues'][0]['references']=['a2:c1']
         self.assertEqual(v.validate(x,r)['verdict'],'fail')
 
+    def test_generic_material_element_audit_instructions(self):
+        # Prompt contract only: this does not prove live-model detection sensitivity.
+        prompt=' '.join(v.request_payload(record())['instructions'].split())
+        for requirement in [
+            'Before assigning a target verdict',
+            'factual presuppositions', 'causal/contrast/relationship statements',
+            'conditional/scenario', 'behavioural implications or predictions',
+            'Check each material element independently against the evidence permitted',
+            'Pass only if every material element is directly supported',
+            'allowed grounded inference under the existing behavioural-inference rules',
+            'Do not reject harmless stylistic compression',
+            'check each named entity, geography and institution independently',
+            'Do not assume evidence supporting one named entity also supports another unless that evidence explicitly covers the other entity too.',
+            'available claims must not blur entity-specific support',
+            'Apply the existing evidence hierarchy throughout this audit']:
+            self.assertIn(requirement,prompt)
+
     def test_size_breakdown(self):
         s=v.size_report(record())
         self.assertEqual(s['complete_request_bytes'],sum(s[k] for k in
