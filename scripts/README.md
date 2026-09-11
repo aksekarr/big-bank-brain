@@ -1007,3 +1007,37 @@ ledger stages distinguish returned, validation-failed, storage-failed and stored
 Git checkpoint/dirty information is optional when Git is unavailable. No raw response
 text or exception messages are archived. Compare target t1:p1, unrelated targets and
 matched supported/unsupported cases separately; a technical failure is not a semantic pass.
+
+
+### Isolated ABN held-out comparison (not yet live-authorised)
+
+`python3 -B scripts/compare_abn_heldout.py --variant frozen --case abn_clean`
+is a network-free diagnostic. One condition per invocation; live execution additionally
+requires explicit `--live --limit 1` and `OPENAI_API_KEY`. No calls are authorised by
+these controls alone. Planned order (all r1): frozen/abn_clean,
+experimental/abn_clean, frozen/abn_retaining, experimental/abn_retaining.
+
+Four permanently one-shot keys; 124,560 microdollars reserved each, 498,240 total
+($0.49824 estimated reservation, not measured billing). Rejections release financial
+reservation but never reopen an attempted key. Pending, invalid/refused/incomplete,
+and storage-failure outcomes also cannot retry. Results never overwrite existing files.
+State uses only `abn-heldout-comparison-ledger.json` and
+`abn-heldout-comparison-{variant}-{case}-r1.json`.
+
+Fixtures in `tests/fixtures/abn_heldout/` retain the Campaign 2 source evidence and
+ABN points; only the first point of each non-ABN theme is included to keep unchanged
+experimental requests below 20,000 bytes. Both variants see identical fixture content.
+The primary target is t3:p1: clean passes; retaining fails for missing prior control.
+Framing failures are scored separately. Human labels stay in the manifest, never
+model input. This case was previously evaluated in Campaigns 1/2; it is held out from
+the synthetic campaign, not a never-seen blind benchmark. Prompts/schemas are unchanged.
+
+The separate runner reuses pure digest/JSON/Git utilities and existing request,
+parser, validator, client and atomic-storage helpers. Its small campaign state machine
+is local rather than mutating globals in the completed comparison runner.
+
+ABN live execution additionally requires an available Git checkpoint and a known
+clean working tree; dirty or unavailable Git state stops before client creation or
+reservation. Offline diagnostics remain available. Attempt and result provenance
+include the SHA-256 of the local ABN runner bytes, alongside existing helper,
+fixture, manifest and prompt/schema identities.

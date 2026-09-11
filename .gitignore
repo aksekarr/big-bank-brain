@@ -72,3 +72,10 @@ __pycache__/
 /presupposition-comparison-ledger.json
 /presupposition-comparison-frozen-*-r1.json
 /presupposition-comparison-experimental-*-r1.json
+
+# Isolated four-condition ABN comparison
+/abn-heldout-comparison-ledger.json
+/abn-heldout-comparison-frozen-abn_clean-r1.json
+/abn-heldout-comparison-frozen-abn_retaining-r1.json
+/abn-heldout-comparison-experimental-abn_clean-r1.json
+/abn-heldout-comparison-experimental-abn_retaining-r1.json

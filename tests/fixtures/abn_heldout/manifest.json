@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "campaign": "abn-heldout",
+  "primary_target": "t3:p1",
+  "evaluation_rule": "Clean point passes; mutation point fails specifically for unsupported prior Senate control. Other failures scored separately.",
+  "provenance_note": "Derived from Campaign 2 clean/abn_retain; all source claims retained; first point only in each non-ABN theme. Previously evaluated by frozen verifier, held out from synthetic comparison; not a never-seen case.",
+  "order": [
+    [
+      "frozen",
+      "abn_clean",
+      "r1"
+    ],
+    [
+      "experimental",
+      "abn_clean",
+      "r1"
+    ],
+    [
+      "frozen",
+      "abn_retaining",
+      "r1"
+    ],
+    [
+      "experimental",
+      "abn_retaining",
+      "r1"
+    ]
+  ],
+  "cases": [
+    {
+      "case_id": "abn_clean",
+      "fixture": "abn_clean.json",
+      "fixture_sha256": "e84aed89a2015969066f56f933c04349875d7de8b0809e8a11783796757b6a02",
+      "expected_target": "t3:p1",
+      "expected_verdict": "pass"
+    },
+    {
+      "case_id": "abn_retaining",
+      "fixture": "abn_retaining.json",
+      "fixture_sha256": "ef2258851f18b24f1001a456eb909fa27983fad273cf37ff03025159b8f95dfe",
+      "expected_target": "t3:p1",
+      "expected_verdict": "fail"
+    }
+  ]
+}
