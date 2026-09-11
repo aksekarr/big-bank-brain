@@ -29,3 +29,7 @@ __pycache__/
 
 # Local Python environment for the optional AI SDK
 /.venv/
+
+# Separate ABN AMRO AI spike results and budget
+/abn-amro-ai-spike-ledger.json
+/abn-amro-ai-extractions.json

@@ -386,3 +386,105 @@ still apply, as do the recorded BBVA source-use caveats.
 Tests use only fakes and synthetic HTML. SDK installation was subsequently approved
 and completed; no publisher fetch or real OpenAI call was made during this step. Synthesis, verification, frontend,
 scheduling and other-source AI processing remain unbuilt.
+
+## ABN AMRO READ feasibility (no AI execution)
+
+Run the source-specific, memory-only reader:
+
+```sh
+.venv/bin/python -B scripts/read_abn_amro.py --limit 3
+```
+
+It validates local discovery metadata, selects up to three eligible unprocessed ABN
+items using the confirmed London calendar window, checks robots, then fetches only
+public article HTML. It does not rewrite eligibility or processing state. The observed
+ABN article panels supply introduction and body paragraphs; navigation, author cards,
+related articles, scripts, figures and tables are excluded. No PDF, chart image,
+restricted API, browser, redirect or retry is used. A failed access attempt stops
+remaining article requests. Unavailable or insufficient HTML uses the existing
+listing excerpt, labelled explicitly; this cannot recover information from charts
+or linked reports. Existing ABN terms caveats in SOURCES.md remain applicable.
+
+The optional `run(items, on_text=...)` callback receives deterministic metadata,
+transient text and its provenance. The command prints only diagnostics and never
+calls an AI model, saves raw content or marks items processed. No new dependencies.
+
+Live READ inspection on 2026-09-11:
+- Global economic forecasts as of 7 Sept 2026: insufficient recognised article body;
+  listing fallback, 219 characters / approximately 32 words.
+- Spotlight - US Midterms: HTML introduction/body, 3,739 characters / 585 words.
+- Spotlight - A perfect storm for food inflation?: HTML introduction/body,
+  7,283 characters / 1,120 words.
+
+The existing semantic schema remains suitable; no second schema was created.
+The callback is now connected by the separate ABN extraction CLI described below.
+The existing 8,000-byte complete-request cap remains in force; longer ABN prose can
+exceed it once prompt/schema overhead is included. Such input stops before a paid
+request rather than being truncated or silently replaced with a listing excerpt.
+
+Offline tests use synthetic HTML and mocked transport. Run the complete suite with
+`.venv/bin/python -B -m unittest discover -s tests -v`.
+
+
+## ABN AMRO article extraction (offline-tested; paid approval pending)
+
+Metadata-only preview (no network, no generated-file writes):
+
+```sh
+.venv/bin/python -B scripts/extract_abn_amro.py --limit 1
+```
+
+After separate approval, exactly one eligible/unprocessed article can be attempted:
+
+```sh
+.venv/bin/python -B scripts/extract_abn_amro.py --live --limit 1
+```
+
+Only limit 1 is accepted. This reuses the ABN reader, BBVA's exact six-field schema,
+validator, Responses client and corrected call accounting. Small keyword parameters
+let ABN supply source-specific instructions and its own ledger filename; BBVA defaults
+remain unchanged. No new package, provider, schema, synthesis or verification step.
+
+Successful output is written to ignored `abn-amro-ai-extractions.json`, keyed by URL.
+Each record keeps institution, source name, title, URL, publication date, model and
+extraction time outside `extraction`. A deterministic `read_metadata` object records
+`text_source`, `listing_fallback_used`, character/approximate word counts and that
+charts, tables and linked reports were not extracted. The model receives source-depth
+context, but does not regenerate these metadata fields. Thin listing excerpts remain
+eligible; extraction can still fail if no supported valid result is returned.
+
+Only validated, successfully saved semantics are acknowledged in processed state.
+Refusal, invalid structure, oversized input and persistence failures leave the item
+unprocessed. No raw article text, HTML or request/response envelope is persisted.
+Live preparation refreshes the shared ready-list; the default preview does not.
+
+The fresh, separate `abn-amro-ai-spike-ledger.json` allows at most three actual model
+calls across invocations. An absent ledger represents zero attempts, not an error.
+401/429 rejections remain audited but release reservations; returned results consume
+a slot even if validation fails; uncertain outcomes retain pending reservations.
+There are no retries or resets. The completed BBVA ledger is never read or changed
+by ABN call accounting. ABN retains the existing $0.15 reservation budget, $0.04656
+per held call, 8,000-byte request cap and 2,000-output-token cap. These are conservative
+reservations, not measured billing. Current local state: no ABN paid calls made.
+
+The current first selection is the forecasts item dated 8 September. Its previous
+READ test used a 219-character / approximately 32-word listing fallback; this is
+historical diagnostic evidence, not a fresh page fetch by the metadata preview.
+
+For a deliberate one-item quality test, add the exact discovered URL. It is matched
+against all currently eligible, unprocessed ABN items before limiting selection;
+unknown, old, future, missing-date or already-processed items cannot bypass eligibility.
+Without this option the normal newest-item selection is unchanged, including thin
+listing excerpts.
+
+```sh
+.venv/bin/python -B scripts/extract_abn_amro.py --live --limit 1 --url 'https://www.abnamro.com/research/en/our-research/spotlight-us-midterms-trump-can-veto-democrats-cannot'
+```
+
+Omit `--live` for a metadata-only preview. The option does not alter READ, validation,
+storage, successful-processing acknowledgement or ABN's separate three-call budget.
+For this article, the previously measured 3,739 characters give an estimated
+6,167-byte complete request using ASCII placeholder text with the actual metadata,
+prompt and schema. Actual UTF-8 characters and JSON escaping may increase this:
+no raw text was retained to reproduce its exact byte count. The live size guard
+still checks the actual complete payload against 8,000 bytes before any API request.

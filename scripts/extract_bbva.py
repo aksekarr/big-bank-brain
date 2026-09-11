@@ -93,10 +93,10 @@ def reject_source_copy(data, source_text):
             raise SpikeError('Output copies too much consecutive source text')
 
 
-def request_payload(item, source_text):
+def request_payload(item, source_text, *, instructions=INSTRUCTIONS):
     metadata = {key: item[key] for key in ['title', 'institution', 'publication_date']}
     payload = {'model': MODEL, 'reasoning': {'effort': REASONING},
-               'instructions': INSTRUCTIONS,
+               'instructions': instructions,
                'input': [{'role': 'user', 'content': json.dumps({'metadata': metadata, 'article_text': source_text}, ensure_ascii=False)}],
                'text': {'format': {'type': 'json_schema', 'name': 'article_extraction', 'strict': True, 'schema': SCHEMA}},
                'max_output_tokens': MAX_OUTPUT_TOKENS, 'tools': [], 'tool_choice': 'none',
@@ -131,8 +131,8 @@ def parse_response(response, source_text):
     return data
 
 
-def load_ledger(root):
-    path = root / LEDGER
+def load_ledger(root, *, ledger_name=LEDGER):
+    path = root / ledger_name
     if not path.exists():
         return {'version': 1, 'attempts': []}
     data = dedupe.read_json(path)
@@ -168,15 +168,16 @@ def select(root, now, limit):
                   key=lambda i: i['publication_date'], reverse=True)[:limit]
 
 
-def extract_one(client, item, source_text, root, now, ledger):
-    payload = request_payload(item, source_text)
+def extract_one(client, item, source_text, root, now, ledger, *,
+                ledger_name=LEDGER, instructions=INSTRUCTIONS):
+    payload = request_payload(item, source_text, instructions=instructions)
     if held_calls(ledger) >= MAX_CALLS or (held_calls(ledger)+1)*RESERVE_MICRO_USD > BUDGET_MICRO_USD:
         raise SpikeError('Three-call or spike budget limit reached; review required')
     # Persist before sending; release only a definite 401/429 rejection without a result.
     attempt = {'url': item['url'], 'reserved_at': now.isoformat(),
                'reserved_micro_usd': RESERVE_MICRO_USD, 'outcome': 'pending'}
     ledger['attempts'].append(attempt)
-    processing.write_json(ledger, root / LEDGER)
+    processing.write_json(ledger, root / ledger_name)
     try:
         response = client.responses.create(**payload)
     except Exception as error:
@@ -187,14 +188,14 @@ def extract_one(client, item, source_text, root, now, ledger):
             attempt.update(outcome='rejected', http_status=status, error_code=safe_code)
         else:
             attempt.update(error_code=safe_code)
-        processing.write_json(ledger, root / LEDGER)
+        processing.write_json(ledger, root / ledger_name)
         safe_status = str(status) if type(status) is int else 'unavailable'
         raise SpikeError(f'OpenAI request failed (HTTP {safe_status}, {safe_code}); no retry or model substitution') from None
     finally:
         del payload
     # A returned result consumes a slot even if refusal/schema checks fail afterwards.
     attempt['outcome'] = 'result'
-    processing.write_json(ledger, root / LEDGER)
+    processing.write_json(ledger, root / ledger_name)
     return parse_response(response, source_text)
 
 
