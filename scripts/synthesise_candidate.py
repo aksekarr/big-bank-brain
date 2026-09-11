@@ -154,6 +154,9 @@ def run(root=ROOT, *, live=False, client=None, now=None):
             record_diagnostic(attempt, 'storage', 'storage_failed')
             write(ledger, root / LEDGER)
             raise SafetyError('Synthesis storage failed; previous candidate preserved, input consumed') from None
+        # Read the successful atomic replacement while holding the directory lock.
+        # Do not hash a reconstructed JSON representation or modify the result.
+        attempt['stored_result_sha256'] = hashlib.sha256((root / synthesis.RESULT).read_bytes()).hexdigest()
         record_diagnostic(attempt, 'storage', 'stored')
         write(ledger, root / LEDGER)
         return {'status': 'stored', 'result_file': synthesis.RESULT, **provenance,

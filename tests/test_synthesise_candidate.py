@@ -59,6 +59,9 @@ class CanonicalSynthesisTests(unittest.TestCase):
         self.assertEqual(before['source_input_sha256'],sha)
         attempt=c.load_ledger(self.root)['attempts'][0]
         self.assertEqual(attempt['diagnostic_code'],'stored')
+        self.assertEqual(attempt['stored_result_sha256'],hashlib.sha256(
+            (self.root/c.synthesis.RESULT).read_bytes()).hexdigest())
+        self.assertNotIn('stored_result_sha256',stored)
         self.assertEqual(attempt['reserved_micro_usd'],100560)
         with patch.object(c.synthesis.article,'make_client') as factory:
             with self.assertRaisesRegex(c.SafetyError,'consumed'):c.run(self.root,live=True,now=NOW)

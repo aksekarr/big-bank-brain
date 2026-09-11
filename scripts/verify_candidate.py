@@ -15,9 +15,9 @@ base = verifier.base
 ROOT = base.synthesis.assembler.processing.ROOT
 LEDGER = 'candidate-verification-ledger.json'
 # Approved canonical-only bounds; never expand automatically.
-# (21,000 + 1,024) * $2.50/million + 6,000 * $12/million.
-MAX_REQUEST_BYTES = 21000
-RESERVE_MICRO_USD = 127060
+# (25,000 + 1,024) * $2.50/million + 6,000 * $12/million.
+MAX_REQUEST_BYTES = 25000
+RESERVE_MICRO_USD = 137060
 REVIEW_RESULT = 'candidate-review.json'
 ATTEMPT_RESULT = 'candidate-verification.json'
 
@@ -66,7 +66,7 @@ def diagnostics(provenance, ledger):
         blockers.append('Synthesis snapshot already consumed')
     if pending:
         blockers.append('Synthesis snapshot has pending uncertain attempt; no retry')
-    return {**provenance, 'request_cap': MAX_REQUEST_BYTES, 'request_size_permitted': fits,
+    return {**provenance, 'reserved_micro_usd': RESERVE_MICRO_USD, 'request_cap': MAX_REQUEST_BYTES, 'request_size_permitted': fits,
             'snapshot_consumed': consumed, 'snapshot_pending': pending,
             'live_eligible_ignoring_credentials': not blockers, 'blockers': blockers,
             'pass_means': 'human_review_required', 'publication_approved': False}

@@ -60,7 +60,7 @@ class CandidateTests(unittest.TestCase):
         self.assertEqual((self.root/c.base.synthesis.RESULT).read_bytes(),self.raw)
         with self.assertRaises(ValueError):c.run(self.root,live=True,client=self.client)
         self.assertEqual(self.client.responses.create.call_count,2)
-        self.assertTrue(all(a['reserved_micro_usd']==127060 for a in c.load_ledger(self.root)['attempts']))
+        self.assertTrue(all(a['reserved_micro_usd']==137060 for a in c.load_ledger(self.root)['attempts']))
 
     def test_invalid_response_and_storage_failure_preserve_previous(self):
         for mode in ('invalid','refusal','storage'):
@@ -108,7 +108,7 @@ class CandidateTests(unittest.TestCase):
         with patch.object(c.base.synthesis.article,'make_client') as factory:
             with self.assertRaisesRegex(c.SafetyError,'consumed'):c.run(self.root,live=True)
             factory.assert_not_called()
-        self.assertEqual((c.MAX_REQUEST_BYTES,c.RESERVE_MICRO_USD),(21000,127060))
+        self.assertEqual((c.MAX_REQUEST_BYTES,c.RESERVE_MICRO_USD),(25000,137060))
 
     def test_rejections_and_uncertain_outcomes_no_retry(self):
         for status in (401,429,None):
@@ -172,7 +172,7 @@ class CandidateTests(unittest.TestCase):
         self.assertEqual((self.root/c.LEDGER).read_text(),'{bad')
 
     def test_canonical_size_boundary(self):
-        for size in (21000,21001):
+        for size in (25000,25001):
             with self.subTest(size=size):
                 payload=c.verifier.request_payload(self.snapshot)
                 original=len(json.dumps(payload,ensure_ascii=False).encode('utf-8'))
@@ -180,17 +180,17 @@ class CandidateTests(unittest.TestCase):
                 with patch.object(c.verifier,'request_payload',return_value=payload), patch.object(c.base.synthesis.article,'make_client') as factory:
                     diagnostic=c.run(self.root)
                     self.assertEqual(diagnostic['request_bytes'],size)
-                    self.assertEqual(diagnostic['request_cap'],21000)
-                    self.assertEqual(diagnostic['request_size_permitted'],size==21000)
-                    if size>21000:
+                    self.assertEqual(diagnostic['request_cap'],25000)
+                    self.assertEqual(diagnostic['request_size_permitted'],size==25000)
+                    if size>25000:
                         with self.assertRaisesRegex(c.SafetyError,'Request-size'):
                             c.run(self.root,live=True)
                     else:
                         self.client.responses.create.return_value=self.response()
                         c.run(self.root,live=True,client=self.client)
                     factory.assert_not_called()
-                if size==21000:
-                    self.assertEqual(c.load_ledger(self.root)['attempts'][0]['reserved_micro_usd'],127060)
+                if size==25000:
+                    self.assertEqual(c.load_ledger(self.root)['attempts'][0]['reserved_micro_usd'],137060)
                     (self.root/c.LEDGER).unlink()
                 else:
                     self.assertFalse((self.root/c.LEDGER).exists())
@@ -205,9 +205,10 @@ class CandidateTests(unittest.TestCase):
         with patch.object(c.base.synthesis.article,'make_client') as factory:
             diagnostic=c.run(self.root)
             factory.assert_not_called()
-        self.assertEqual(diagnostic['request_bytes'],20336)
-        self.assertEqual(diagnostic['request_cap'],21000)
+        self.assertEqual(diagnostic['request_bytes'],23765)
+        self.assertEqual(diagnostic['request_cap'],25000)
         self.assertTrue(diagnostic['request_size_permitted'])
+        self.assertEqual(diagnostic['reserved_micro_usd'],137060)
         self.assertTrue(diagnostic['live_eligible_ignoring_credentials'])
         self.assertFalse(diagnostic['publication_approved'])
         self.assertFalse((self.root/c.LEDGER).exists())

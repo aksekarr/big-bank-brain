@@ -40,6 +40,9 @@ Confirmed only when Avi signs off.
 
 | 2026-09-11 | Canonical manual synthesis reuses evaluated synthesis semantics with separate cumulative exact-input accounting, one held response per input snapshot, and existing 20,000-byte/$0.10056 bounds | Approved canonical runtime integration; historical experiment state stays untouched. A new live run requires legitimate changed/new input, never byte manipulation to escape consumed verification |
 
+| 2026-09-11 | Supersede the canonical verifier 21k cap with 25,000 bytes and 137,060 microdollars per snapshot; frozen verifier limits and semantics stay unchanged; no automatic future expansion | Explicit approval after legitimate six-article synthesis required 23,765 verification bytes; same costing formula |
+| 2026-09-11 | Future canonical synthesis successes record SHA-256 of exact stored result bytes in their attempt; do not backfill historical attempts | Enable later result-integrity checks without changing synthesis content or semantics |
+
 ## Proposed (awaiting Avi)
 
 | Decision | Why |

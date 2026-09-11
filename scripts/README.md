@@ -24,6 +24,9 @@ product task. Future oversized input blocks rather than truncating or expanding 
 
 Returned-response diagnostics reuse only the safe classification helpers from
 `verify_candidate.py`; synthesis validation remains `synthesise.parse_response`.
+Future successfully stored synthesis attempts also record `stored_result_sha256`,
+calculated from the exact stored file bytes under the directory lock. The existing
+successful attempt predates this field and is not retroactively changed.
 The ledger records input, prompt/schema/code identities, configuration, reservation,
 timestamps and safe response/storage stages, never raw output or exception text.
 A validated result atomically replaces `synthesis-result.json`; any preflight, send,
@@ -66,12 +69,12 @@ output consume it; pending uncertainty blocks it. Definite 401/429 releases the
 snapshot for a later explicitly authorised manual attempt, never an automatic retry.
 Older snapshots remain in cumulative audit history and do not block a new snapshot.
 `--live` is the manual authorisation boundary; there is no daily scheduler or global
-campaign allowance. Every canonical attempt records a $0.12706 reservation.
-Avi explicitly approved a canonical-only 21,000-byte serialized UTF-8 request cap
-after measuring the full production request at 20,336 bytes. The frozen/evaluated
+campaign allowance. Every canonical attempt records a $0.13706 reservation.
+Avi explicitly approved a canonical-only 25,000-byte serialized UTF-8 request cap
+after the legitimate six-article briefing produced a 23,765-byte verification request. The frozen/evaluated
 verifier paths retain their 20,000-byte limit and historical reservation unchanged.
-The canonical estimate is (21,000 + 1,024) × $2.50/million + 6,000 × $12/million
-= $0.12706, using existing project costing assumptions, not measured billing.
+The canonical estimate is (25,000 + 1,024) × $2.50/million + 6,000 × $12/million
+= $0.13706, using existing project costing assumptions, not measured billing.
 The cap never auto-expands: future over-cap requests stop and require review. Offline diagnostics report size,
 cap, snapshot eligibility and blockers even for oversized input, without writing state.
 
