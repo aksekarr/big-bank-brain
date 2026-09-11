@@ -927,3 +927,33 @@ not publication approval. Failure preserves any previous good verification outpu
 Neither pass nor fail modifies the synthesis or processed state. Source extraction and
 synthesis controls/ledgers remain unchanged. No reset/retry, repair or publishing path
 is provided. The maximum initial verifier model-call allowance is one.
+
+## Evaluation-only verifier campaign
+
+```sh
+.venv/bin/python -B scripts/evaluate_verifier.py --case clean
+# Live use requires separate approval; not yet live-proven:
+.venv/bin/python -B scripts/evaluate_verifier.py --case clean --live --limit 1
+```
+
+One fixed case per invocation: clean, turkiye_conditionality, argentina_overview,
+bis_reference_support, ecb_despite, abn_retain or harmless_paraphrase. No arbitrary
+fixture paths, batches or repetitions beyond r1. Default diagnostics do not write state.
+The manifest resolves only fixed filenames and the exact fixture bytes must match its
+SHA-256 before sending. Human labels never enter the frozen verifier request.
+
+`verifier-eval-ledger.json` is separate from production verification. Maximum seven
+held calls, one per case, $0.12456 each and $0.87192 cumulative. Returned responses
+consume the slot even if invalid/refused; uncertain outcomes remain pending. Definite
+401/429 rejections retain audit history but release capacity. No automatic retries.
+A rejected request is not permission to retry without the applicable user approval.
+The request guard is 20,000 bytes; output bound 6,000; frozen model/reasoning/prompt and
+schema are reused. This task implements controls, not permission to spend the campaign.
+
+Results are `verifier-eval-<case>-r1.json`, created atomically without replacement.
+They include fixture/prompt/verifier-code hashes, Git HEAD when available, configuration,
+time, request size and validated findings. Git HEAD alone does not prove a clean tree.
+Storage failure keeps the slot consumed. Production verifier ledger/results and the
+stored synthesis are neither read nor written. All evaluation runtime names are ignored.
+No raw publisher content, repairs or publishing are involved. Offline tests establish
+controls, not live semantic detection quality.

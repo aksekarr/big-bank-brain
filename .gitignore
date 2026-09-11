@@ -51,3 +51,13 @@ __pycache__/
 /verification-result.json
 
 /verification-result-2.json
+
+# Evaluation-only first campaign
+/verifier-eval-ledger.json
+/verifier-eval-clean-r1.json
+/verifier-eval-turkiye_conditionality-r1.json
+/verifier-eval-argentina_overview-r1.json
+/verifier-eval-bis_reference_support-r1.json
+/verifier-eval-ecb_despite-r1.json
+/verifier-eval-abn_retain-r1.json
+/verifier-eval-harmless_paraphrase-r1.json
