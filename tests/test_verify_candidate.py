@@ -213,3 +213,58 @@ class CandidateTests(unittest.TestCase):
         self.assertFalse((self.root/c.LEDGER).exists())
         self.assertFalse((self.root/c.ATTEMPT_RESULT).exists())
         self.assertFalse((self.root/c.REVIEW_RESULT).exists())
+
+    def test_safe_response_failure_diagnostics(self):
+        for kind in ('refusal','incomplete','invalid_json','validation_failed_unclassified',
+                     'unexpected_internal_error'):
+            with self.subTest(kind=kind):
+                (self.root/c.LEDGER).unlink(missing_ok=True)
+                for name in (c.REVIEW_RESULT,c.ATTEMPT_RESULT):
+                    (self.root/name).write_text('previous valid output')
+                response=self.response()
+                if kind=='refusal':
+                    response.output[0].content=[NS(type='refusal',refusal='PRIVATE RESPONSE')]
+                elif kind=='incomplete':
+                    response.status='incomplete'
+                elif kind=='invalid_json':
+                    response.output[0].content[0].text='PRIVATE INVALID JSON'
+                elif kind=='validation_failed_unclassified':
+                    response.output[0].content[0].text='{"private":"PRIVATE OUTPUT"}'
+                self.client.responses.create.return_value=response
+                parser=c.verifier.parse_response
+                def parse(*args):
+                    if kind=='unexpected_internal_error':
+                        raise RuntimeError('PRIVATE INTERNAL ERROR')
+                    return parser(*args)
+                with patch.object(c.verifier,'parse_response',side_effect=parse):
+                    with self.assertRaisesRegex(c.SafetyError,kind):
+                        c.run(self.root,live=True,client=self.client)
+                attempt=c.load_ledger(self.root)['attempts'][0]
+                self.assertEqual(attempt['diagnostic_code'],kind)
+                self.assertEqual(attempt['diagnostic_stage'],'validation')
+                self.assertTrue(attempt['response_returned'])
+                self.assertEqual(attempt['outcome'],'result')
+                self.assertIn('diagnostic_at',attempt)
+                self.assertNotIn('PRIVATE',(self.root/c.LEDGER).read_text())
+                before=self.client.responses.create.call_count
+                with self.assertRaisesRegex(c.SafetyError,'consumed'):
+                    c.run(self.root,live=True,client=self.client)
+                self.assertEqual(self.client.responses.create.call_count,before)
+                for name in (c.REVIEW_RESULT,c.ATTEMPT_RESULT):
+                    self.assertEqual((self.root/name).read_text(),'previous valid output')
+
+    def test_success_diagnostic_and_safe_status(self):
+        self.client.responses.create.return_value=self.response()
+        c.run(self.root,live=True,client=self.client)
+        attempt=c.load_ledger(self.root)['attempts'][0]
+        self.assertEqual(attempt['diagnostic_code'],'stored')
+        self.assertEqual(attempt['response_status'],'completed')
+        self.assertTrue(attempt['response_returned'])
+        (self.root/c.LEDGER).unlink()
+        response=self.response();response.status='PRIVATE STATUS'
+        self.client.responses.create.return_value=response
+        with self.assertRaises(c.SafetyError):c.run(self.root,live=True,client=self.client)
+        attempt=c.load_ledger(self.root)['attempts'][0]
+        self.assertEqual(attempt['response_status'],'unknown')
+        self.assertEqual(attempt['diagnostic_code'],'validation_failed_unclassified')
+        self.assertNotIn('PRIVATE',(self.root/c.LEDGER).read_text())

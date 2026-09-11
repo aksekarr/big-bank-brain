@@ -101,6 +101,28 @@ def prepare(root):
     return snapshot, payload, provenance
 
 
+def response_diagnostic(response, error):
+    """Classify safe envelope facts/types only; the evaluated parser decides validity."""
+    if not isinstance(error, ValueError):
+        return 'unexpected_internal_error'
+    if getattr(response, 'status', None) == 'incomplete':
+        return 'incomplete'
+    for part in getattr(response, 'output', []) or []:
+        if getattr(part, 'type', None) == 'message':
+            for content in getattr(part, 'content', []) or []:
+                if getattr(content, 'type', None) == 'refusal':
+                    return 'refusal'
+    if isinstance(error, json.JSONDecodeError):
+        return 'invalid_json'
+    # ValueError/SpikeError do not expose separate schema/reference/audit codes.
+    return 'validation_failed_unclassified'
+
+
+def record_diagnostic(attempt, stage, code):
+    attempt.update(diagnostic_stage=stage, diagnostic_code=code,
+                   diagnostic_at=datetime.now(timezone.utc).isoformat())
+
+
 def run(root=ROOT, *, live=False, client=None):
     descriptor = os.open(root, os.O_RDONLY)
     owned = None
@@ -125,7 +147,8 @@ def run(root=ROOT, *, live=False, client=None):
             client = owned
         attempt = {'reserved_at': datetime.now(timezone.utc).isoformat(),
                    'reserved_micro_usd': RESERVE_MICRO_USD,
-                   **provenance, 'outcome': 'pending'}
+                   **provenance, 'outcome': 'pending', 'response_returned': False}
+        record_diagnostic(attempt, 'send', 'pending')
         ledger['attempts'].append(attempt)
         write = base.synthesis.assembler.processing.write_json
         write(ledger, root / LEDGER)
@@ -135,24 +158,40 @@ def run(root=ROOT, *, live=False, client=None):
             status = getattr(error, 'status_code', None)
             if type(status) is int and status in {401, 429}:
                 attempt.update(outcome='rejected', http_status=status)
+            record_diagnostic(attempt, 'send', 'rejected' if attempt['outcome']=='rejected' else 'uncertain')
             write(ledger, root / LEDGER)
             raise SafetyError('Request rejected (401/429); no automatic retry' if attempt['outcome'] == 'rejected'
                               else 'Send outcome uncertain; snapshot pending, no retry') from None
-        attempt['outcome'] = 'result'
+        attempt.update(outcome='result', response_returned=True)
+        status = getattr(response, 'status', None)
+        attempt['response_status'] = status if isinstance(status, str) and status in {
+            'completed', 'incomplete', 'failed', 'cancelled', 'queued', 'in_progress'} else 'unknown'
+        record_diagnostic(attempt, 'response', 'response_returned')
         write(ledger, root / LEDGER)
         try:
             findings = verifier.parse_response(response, snapshot)
-        except Exception:
-            raise SafetyError('Returned response unusable or refused; snapshot consumed, previous outputs preserved') from None
+        except Exception as error:
+            code = response_diagnostic(response, error)
+            record_diagnostic(attempt, 'validation', code)
+            write(ledger, root / LEDGER)
+            raise SafetyError('Returned response rejected: ' + code +
+                              '; snapshot consumed, previous outputs preserved') from None
         result = {'version': 1, **provenance,
                   'verified_at': datetime.now(timezone.utc).isoformat(), **findings,
                   'review_status': 'human_review_required' if findings['verdict']=='pass' else 'blocked',
                   'publication_approved': False}
         # Latest valid diagnostic may be FAIL. Only PASS can replace the review candidate.
         # Neither file is a published digest or evidence of human approval.
-        write(result, root / ATTEMPT_RESULT)
-        if findings['verdict'] == 'pass':
-            write(result, root / REVIEW_RESULT)
+        try:
+            write(result, root / ATTEMPT_RESULT)
+            if findings['verdict'] == 'pass':
+                write(result, root / REVIEW_RESULT)
+        except Exception:
+            record_diagnostic(attempt, 'storage', 'storage_failed')
+            write(ledger, root / LEDGER)
+            raise SafetyError('Result storage failed; snapshot consumed') from None
+        record_diagnostic(attempt, 'storage', 'stored')
+        write(ledger, root / LEDGER)
         return {'status': result['review_status'], 'verdict': findings['verdict'],
                 'publication_approved': False, 'request_bytes': provenance['request_bytes'],
                 'result_file': ATTEMPT_RESULT,
