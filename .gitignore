@@ -67,3 +67,8 @@ __pycache__/
 /verifier-eval-v2-clean-r1.json
 /verifier-eval-v2-harmless_paraphrase-r1.json
 /verifier-eval-v2-abn_retain-r1.json
+
+# Isolated 24-combination presupposition comparison
+/presupposition-comparison-ledger.json
+/presupposition-comparison-frozen-*-r1.json
+/presupposition-comparison-experimental-*-r1.json

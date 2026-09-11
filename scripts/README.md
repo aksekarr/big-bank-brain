@@ -977,3 +977,33 @@ Its separate state is `verifier-eval-v2-ledger.json` and
 Campaign 1 and production runtime state are not accessed by Campaign 2.
 Omitting `--campaign` retains the legacy Campaign 1 behaviour; it never selects v2
 or falls back between campaigns. Always use the explicit v2 command above for this round.
+
+### Isolated presupposition comparison (not yet live-proven)
+
+```sh
+.venv/bin/python -B scripts/compare_presuppositions.py --variant frozen --case retain_supported
+# Requires separate live approval; one combination only:
+.venv/bin/python -B scripts/compare_presuppositions.py --variant experimental --case retain_supported --live --limit 1
+```
+
+Explicit variants are `frozen` and `experimental`; cases are the 12 committed
+presupposition pairs. Default mode checks identities, request size, state and output
+availability without creating a client or writing state. No batch/path/repetition options.
+The approved manifest and verifier/helper code hashes are pinned; a change stops preflight.
+Fixture bytes are read once for both hashing and parsing. Labels are never model input.
+
+Only `presupposition-comparison-ledger.json` and
+`presupposition-comparison-<variant>-<case>-r1.json` are used. Existing results cannot
+be overwritten. Campaign 1/2 and production runtime files are not accessed.
+Each of 24 combinations closes permanently on reservation, including rejected 401/429
+requests: those release financial capacity but never reopen experiment eligibility.
+Uncertain, refused, invalid and storage-failed attempts cannot be retried. No automatic
+retry occurs. A directory lock and atomic ledger updates protect the comparison cap.
+The allowance is 124,560 microdollars per held slot and 2,989,440 total ($2.98944),
+under the existing assumption, not verified billing. This implementation authorises no spend.
+Requests retain the 20,000-byte guard, medium reasoning and 6,000 output-token bound.
+Results preserve each variant's validated findings/audits and pre-send provenance;
+ledger stages distinguish returned, validation-failed, storage-failed and stored outcomes.
+Git checkpoint/dirty information is optional when Git is unavailable. No raw response
+text or exception messages are archived. Compare target t1:p1, unrelated targets and
+matched supported/unsupported cases separately; a technical failure is not a semantic pass.
