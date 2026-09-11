@@ -2,6 +2,13 @@ const byId = (id) => document.getElementById(id);
 const escapeHtml = (value) => String(value).replace(/[&<>'"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' })[char]);
 const correctionMarker = () => '<span class="correction-marker">Corrected in human review</span>';
 
+const siteHeader = document.querySelector('.site-header');
+function updateMasthead() {
+  siteHeader.classList.toggle('is-compact', window.scrollY > 72);
+}
+window.addEventListener('scroll', updateMasthead, { passive: true });
+updateMasthead();
+
 function applyCorrections(text, target, corrections) {
   const relevant = corrections.filter((correction) => correction.target_id === target || correction.target_id.startsWith(`${target}-`));
   let corrected = text;
