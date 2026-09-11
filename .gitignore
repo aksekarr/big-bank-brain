@@ -79,3 +79,9 @@ __pycache__/
 /abn-heldout-comparison-frozen-abn_retaining-r1.json
 /abn-heldout-comparison-experimental-abn_clean-r1.json
 /abn-heldout-comparison-experimental-abn_retaining-r1.json
+
+# Canonical MVP verification diagnostics and last passing review record
+/candidate-verification.json
+/candidate-review.json
+
+/candidate-verification-ledger.json

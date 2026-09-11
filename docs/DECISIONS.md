@@ -32,6 +32,11 @@ Confirmed only when Avi signs off.
 | 2026-09-10 | Seven-day eligibility means today plus the previous six calendar dates in Europe/London, inclusive; exclude missing and future publication dates rather than estimating them | Date-only discovery metadata needs an explicit boundary without inventing publication times |
 | 2026-09-11 | Use OpenAI Responses API with `gpt-5.6-terra` and strict structured outputs; initially retain this model family for extraction, later synthesis and separate verification | Avi selected the initial provider/model to prove article-level extraction without multi-model routing; installation and paid calls still require separate approval |
 | 2026-09-11 | Use medium reasoning for the intended first live semantic-verification spike; offline request construction follows this setting, with no live call authorised yet | Verification needs sensitivity to subtle semantic mutations, conditional logic, attribution and support relationships; extraction settings remain unchanged |
+| 2026-09-11 | Make the evaluated `verify_presuppositions.py` verifier canonical for MVP review; retain `verify_synthesis.py` unchanged as a historical comparator. FAIL blocks progression; PASS permits human review only, never automatic publication | The explicit audit detected the contextual ABN mutation while preserving the clean control; unattended publication reliability has not been established |
+
+| 2026-09-11 | Canonical manual verification uses a separate cumulative ledger keyed by exact synthesis SHA-256, one held result per snapshot; definite 401/429 may release eligibility, pending uncertainty blocks it | Preserve historical experiment accounting while allowing explicitly authorised verification of new snapshots; canonical request-cap decision recorded below |
+
+| 2026-09-11 | Canonical wrapper only: 21,000 serialized UTF-8 request bytes and 127,060 microdollars per-snapshot reservation; evaluated verifier limits remain unchanged. No automatic cap expansion | Explicit approval following the measured 20,336-byte production request; reservation follows existing input/output costing assumptions; future over-cap requests require review |
 
 ## Proposed (awaiting Avi)
 

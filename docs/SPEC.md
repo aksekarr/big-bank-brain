@@ -245,11 +245,16 @@ recommendations; don't frame themes as conflicts between institutions.
 
 ### 6.3 Verify (separate AI pass, confirmed)
 
-Check the proposed published synthesis against the extracted source claims.
-For each theme: is the statement supported by the cited items' summaries and claims?
+Check candidate synthesis against extracted source claims using the evaluated
+presupposition-aware implementation in `scripts/verify_presuppositions.py`.
+`scripts/verify_candidate.py` is the canonical manual MVP entry point;
+`scripts/verify_synthesis.py` remains unchanged as a historical comparator.
+Preserve per-target issues and `presupposition_audit` for review.
 
-**[Proposed implementation details]** Output `supported | unsupported` + one-line reason. Unsupported themes are dropped.
-If more than half fail, don't publish: keep the last good digest and log the failure.
+A verifier FAIL blocks candidate progression toward publication. A PASS makes the
+candidate eligible for human review only; it is not publication approval. Invalid
+responses and failures preserve the previous passing review candidate. Human approval
+and publication are not implemented yet; no unattended publication gate is implied.
 
 This is the banking "four-eyes" principle applied to AI output. Say so on the
 "How it's built" page.

@@ -1,3 +1,48 @@
+## Canonical MVP verification (human review required)
+
+After `synthesise.py` stores `synthesis-result.json`, use:
+
+```text
+.venv/bin/python -B scripts/verify_candidate.py
+```
+
+This default is offline request inspection only. `--live --limit 1` still requires
+separate owner approval and available existing verification capacity. The canonical
+runner reuses `verify_presuppositions.py` unchanged for requests and response validation.
+Both evaluated verifier modules and all historical evaluation commands remain unchanged;
+the `verify_synthesis.py` commands later in this document are historical comparator work.
+
+Canonical accounting uses `candidate-verification-ledger.json`, separate from the
+untouched historical `verification-spike-ledger.json`. Each exact synthesis byte
+snapshot (SHA-256) permits one held result: PASS, FAIL, refusal and invalid returned
+output consume it; pending uncertainty blocks it. Definite 401/429 releases the
+snapshot for a later explicitly authorised manual attempt, never an automatic retry.
+Older snapshots remain in cumulative audit history and do not block a new snapshot.
+`--live` is the manual authorisation boundary; there is no daily scheduler or global
+campaign allowance. Every canonical attempt records a $0.12706 reservation.
+Avi explicitly approved a canonical-only 21,000-byte serialized UTF-8 request cap
+after measuring the full production request at 20,336 bytes. The frozen/evaluated
+verifier paths retain their 20,000-byte limit and historical reservation unchanged.
+The canonical estimate is (21,000 + 1,024) × $2.50/million + 6,000 × $12/million
+= $0.12706, using existing project costing assumptions, not measured billing.
+The cap never auto-expands: future over-cap requests stop and require review. Offline diagnostics report size,
+cap, snapshot eligibility and blockers even for oversized input, without writing state.
+
+A valid FAIL is recorded as `blocked` in `candidate-verification.json` and exits
+nonzero. It never replaces `candidate-review.json`. A valid PASS is recorded as
+`human_review_required` in both files. Every result has `publication_approved: false`.
+Invalid/refused responses preserve previous valid output; atomic writes preserve the
+previous review file on storage failure. Returned responses still consume capacity;
+401/429 release it, uncertain outcomes stay pending and require review. Neither
+synthesis nor any published digest is replaced by verification.
+
+Both files retain full target issues and presupposition audits and identify the exact
+single-read synthesis snapshot by SHA-256. `candidate-review.json` is the last passing
+review record, not necessarily the current synthesis. A later approval/publication
+stage must bind human approval to that exact snapshot and reject stale/mismatched
+records; no such stage or automatic publication exists yet. The current manual flow
+is synthesis candidate → verification → blocked or human review required.
+
 # BBVA discovery spike
 
 From the project folder, run:
