@@ -1086,3 +1086,59 @@ clean working tree; dirty or unavailable Git state stops before client creation 
 reservation. Offline diagnostics remain available. Attempt and result provenance
 include the SHA-256 of the local ABN runner bytes, alongside existing helper,
 fixture, manifest and prompt/schema identities.
+
+
+## Source-set readiness audit — 11 September 2026
+
+This is a local, offline audit of recorded state, not a fresh publisher-access test.
+The approved MVP remains BBVA, ABN AMRO, BIS and Liberty Street Economics. No other
+candidate in `docs/SOURCES.md` has an implemented approved adapter. Candidate status
+is not permission to collect. Existing terms/access caveats remain in force.
+
+| Source | Discovery / READ / extraction scripts | Current readiness and scope |
+|---|---|---|
+| BBVA Research | `discover_bbva.py`, `read_bbva.py`, `extract_bbva.py` | Adapter live-proven; three valid stored extractions. Further extraction requires a product decision on its exhausted three-call spike allowance. HTML introduction/key points only, not linked reports. Listing fallback is diagnostic only and is not sent for extraction. |
+| ABN AMRO Group Economics | `discover_abn_amro.py`, `read_abn_amro.py`, `extract_abn_amro.py` | READY for a separately authorised controlled run: one stored extraction, two held-call slots remaining. Article panels, with existing listing excerpt fallback. Charts/tables/linked reports excluded. |
+| BIS and FSI publications | `discover_bis.py`, `read_bis.py`, `extract_bis.py` | READY for a separately authorised controlled run: one stored extraction, two held-call slots remaining. Publication-page research summary, with RSS excerpt fallback; not full papers/PDFs. |
+| Liberty Street Economics | `discover_nyfed_lse.py`, `read_nyfed_lse.py`, `extract_nyfed_lse.py` | READY BUT LIVE CONFIRMATION PENDING. Historical HTML READ proven; extraction tested offline only. No eligible item in the current stored 5–11 September window. Full article prose, excluding figures/tables/footnotes/bios; RSS excerpt fallback implemented. Author views must not become official Fed positions. |
+
+All four extractors persist the same six-field semantics under
+`{version: 1, items: {URL: record}}`, with deterministic title/URL/date/institution/
+source metadata outside `extraction`. Each saves validated semantics before adding
+the successful URL to `processed-state.json`. The source-specific READ depth is kept
+separate; no missing depth information is invented. Failed storage/processing means
+the item cannot enter synthesis until both valid semantics and acknowledgement exist.
+
+`dedupe.py` consumes discovery snapshots; `processing.py` selects the rolling London
+seven-day unprocessed items. These are manual scripts, not a daily orchestration job.
+Some offline preview commands refresh ready-state files; do not confuse them with the
+read-only `assemble_synthesis.py` operation. Source discovery/READ commands themselves
+can fetch public pages and must not be invoked during a network-free inspection.
+
+`assemble_synthesis.py` reads the four named extraction files and processed state,
+projects known fields, excludes invalid/conflicting records, and assigns deterministic
+`aN` article and `aN:cM` claim references. It accepts available valid sources, not a
+mandatory four-source quorum. Missing/invalid extraction files appear in diagnostics;
+malformed processed state stops assembly. `synthesise.py` consumes that packet, validates
+its own output/references and stores `synthesis-result.json`. `verify_candidate.py`
+reads that snapshot for canonical review; no automatic publication is implemented.
+
+Current local snapshots contain 10 BBVA, 10 ABN, 20 BIS and 100 Liberty Street items.
+Eligible/unprocessed counts are 7, 9, 1 and 0 respectively on 11 September. The valid
+assembled packet contains five articles: BBVA 3, ABN 1, BIS 1, Liberty Street 0. Its
+only assembly diagnostic is the missing Liberty Street extraction file. These counts
+are a dated observation, not a daily completeness guarantee. Listing pagination,
+missed-run discovery coverage and scheduled-runner access remain unproven.
+
+The existing synthesis spike ledger is exhausted (one returned call). The current
+canonical snapshot is also consumed by its unusable returned response. A legitimate
+new input set still needs an explicitly approved synthesis accounting/run decision;
+do not reset ledgers, change timestamps, or regenerate a candidate to bypass consumed
+snapshot protection. Daily budget lifecycle is not implemented. No source adapter or
+verifier policy was changed by this audit.
+
+`tests/test_source_pipeline.py` exercises all four actual extraction adapters and
+READ parsers with invented HTML/mocked model responses, through stored semantics and
+processed state into the synthesis request. It also proves that one failed source
+leaves the other three usable. It makes no network calls and creates no synthesis.
+This strengthens interface evidence; it does not prove future live access or model quality.

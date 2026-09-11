@@ -5,8 +5,12 @@ Assess credibility, analytical quality, publishing frequency, technical accessib
 and acceptable usage terms before selecting the MVP's 4-5 sources.
 Only public text articles are in scope; existing access and reuse rules still apply.
 
-No source has been approved. Technical discovery findings for five candidates were
-recorded on 2026-09-10; other assessments remain pending. **To investigate** means
+Avi approved BBVA Research, ABN AMRO Group Economics, New York Fed / Liberty Street
+Economics and BIS on 2026-09-10. Their dated approval notes below supersede earlier
+pending-selection/fallback wording, without removing the recorded caveats. Bank of
+America Institute and the other listed candidates remain unapproved. Technical
+discovery findings for five candidates were recorded on 2026-09-10; other assessments
+remain pending. **To investigate** means
 the fact has not yet been established, including institution classifications.
 When researching, record supporting URLs, review dates and evidence in the relevant
 cells or notes. Publishing frequency should record text articles in the last 14 days.
