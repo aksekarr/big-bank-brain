@@ -3,5 +3,5 @@
  * the pipeline, its verification records, or the underlying briefing data.
  */
 window.BBB_CONFIG = {
-  review_status: "pending"
+  review_status: "reviewed"
 };

@@ -42,6 +42,8 @@ Confirmed only when Avi signs off.
 
 | 2026-09-11 | Supersede the canonical verifier 21k cap with 25,000 bytes and 137,060 microdollars per snapshot; frozen verifier limits and semantics stay unchanged; no automatic future expansion | Explicit approval after legitimate six-article synthesis required 23,765 verification bytes; same costing formula |
 | 2026-09-11 | Future canonical synthesis successes record SHA-256 of exact stored result bytes in their attempt; do not backfill historical attempts | Enable later result-integrity checks without changing synthesis content or semantics |
+| 2026-09-11 | Interpretation may be deliberately rerun against an unchanged synthesis snapshot; retain every attempt in its separate ledger and preserve the last valid result until replacement | Interpretation is an optional presentation layer, so iterative prompt refinement must not be blocked by canonical synthesis snapshot rules |
+| 2026-09-11 | Human spot-check: independent model compared all claims and AI text to sources; Avi reviewed the flags; 14 corrections applied via corrections layer | Keep the stored research and AI output intact while presenting reviewed corrections transparently |
 
 ## Proposed (awaiting Avi)
 

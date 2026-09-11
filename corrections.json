@@ -1,0 +1,103 @@
+{
+  "version": 1,
+  "corrections": [
+    {
+      "target_id": "theme-1-point-5",
+      "location": "Theme 1, point 5",
+      "original_text": "Türkiye’s central bank kept its policy rate at 37%, citing weak domestic demand and limited pass-through from supply shocks while identifying high energy prices as an upside risk to inflation. BBVA Research expects a 100bp October cut only if energy prices normalise below $90 per barrel; it otherwise expects inflation near 30% to remain sticky until late first-quarter 2027 and the policy rate to stand at 36% until disinflation improves more clearly.",
+      "corrected_text": "Türkiye’s central bank kept its policy rate at 37%, citing weak domestic demand and limited pass-through from supply shocks while identifying high energy prices as an upside risk to inflation. BBVA Research expects a 100bp cut to 36% at the October 22 meeting only if energy prices normalise below $90 per barrel in the run-up. With inflation likely to stay sticky near 30% until late first-quarter 2027, it then expects the rate to hold at 36% until disinflation improves more clearly.",
+      "reason": "Preserves the condition and clarifies the expected October timing and subsequent rate level."
+    },
+    {
+      "target_id": "claim-a3-c5",
+      "location": "Extracted claim a3:c5",
+      "original_text": "BBVA Research expects annual inflation to decline to about 30% but remain sticky around that level until late Q1 2027, with the policy rate at 36% until disinflation improves more clearly.",
+      "corrected_text": "BBVA Research expects annual inflation to decline to about 30% but remain sticky around that level until late Q1 2027, with the policy rate held at 36% after the conditional October cut until disinflation improves more clearly.",
+      "reason": "Makes the conditional path to the 36% rate explicit."
+    },
+    {
+      "target_id": "bottom-line",
+      "location": "BBB’s read bottom line",
+      "original_text": "Energy prices are the key near-term swing factor for inflation and rates: they could delay easing where price pressures stay high.",
+      "corrected_text": "Energy prices are a key near-term swing factor for European and Turkish rates: they could add tightening or delay easing.",
+      "reason": "Narrows the implication to the supported regions and outcomes."
+    },
+    {
+      "target_id": "theme-2-read",
+      "location": "Theme 2 BBB’s read",
+      "original_text": "The BIS finds volatile payment flows raise excess reserves; better interbank activity lowers them for active banks.",
+      "corrected_text": "BIS researchers find volatile payment flows raise excess reserves; better interbank activity lowers them for active banks.",
+      "reason": "Attributes the finding to researchers rather than the institution."
+    },
+    {
+      "target_id": "theme-2-point-1",
+      "location": "Theme 2, point 1",
+      "original_text": "Using Swedish bank-level data, the BIS study finds that banks active in interbank markets hold more excess reserves when payment flows are more volatile or interbank borrowing is more costly, and less when aggregate interbank activity is higher.",
+      "corrected_text": "Using Swedish bank-level data, BIS researchers find that banks active in interbank markets hold more excess reserves when payment flows are more volatile or interbank borrowing is more costly, and less when aggregate interbank activity is higher.",
+      "reason": "Attributes the finding to researchers rather than the study."
+    },
+    {
+      "target_id": "theme-3-read",
+      "location": "Theme 3 BBB’s read",
+      "original_text": "The BIS says frontier AI can shorten cyber attacks and improve detection, making rapid software updates and recovery capability more important.",
+      "corrected_text": "An FSI paper says frontier AI speeds up exploiting software flaws but also improves detection, making rapid patching and recovery more important.",
+      "reason": "Uses the paper-level attribution and plainer supported wording."
+    },
+    {
+      "target_id": "theme-3-point-1-sentence-1",
+      "location": "Theme 3, point 1, first sentence",
+      "original_text": "The BIS analysis says frontier AI can autonomously identify vulnerabilities, develop exploits and undertake increasingly complex multi-step cyber operations, reducing the expertise, time and resources required for sophisticated attacks.",
+      "corrected_text": "An FSI paper says frontier AI can autonomously identify vulnerabilities, develop exploits and undertake increasingly complex multi-step cyber operations, reducing the expertise, time and resources required for sophisticated attacks.",
+      "reason": "Uses paper-level attribution."
+    },
+    {
+      "target_id": "theme-1-read",
+      "location": "Theme 1 BBB’s read",
+      "original_text": "BBVA Research sees further ECB tightening risk if conflict and energy shocks persist. Its expected Turkish rate cut is only if oil is below $90.",
+      "corrected_text": "BBVA Research expects another ECB hike, with more possible if conflict and energy shocks persist. Its Turkish cut needs energy below $90 ahead of the October meeting.",
+      "reason": "Makes the condition and timing explicit."
+    },
+    {
+      "target_id": "claim-a5-c2",
+      "location": "Extracted claim a5:c2",
+      "original_text": "It expects Democrats to gain ground, while a Republican congressional sweep is becoming less likely.",
+      "corrected_text": "It expects Democrats to gain ground, potentially a lot, sees a Democratic sweep as a distinct possibility and a Republican sweep as increasingly unlikely.",
+      "reason": "Restores material scenario detail."
+    },
+    {
+      "target_id": "theme-4-point-1",
+      "location": "Theme 4, point 1",
+      "original_text": "ABN AMRO’s base case is for Democrats to win the House and Republicans to retain the Senate. It expects Democrats to gain ground and judges a Republican congressional sweep increasingly unlikely.",
+      "corrected_text": "ABN AMRO’s base case is for Democrats to win the House and Republicans to retain the Senate. It expects potentially large Democratic gains, sees a Democratic sweep as a distinct possibility and judges a Republican sweep increasingly unlikely.",
+      "reason": "Restores material scenario detail."
+    },
+    {
+      "target_id": "theme-1-point-3",
+      "location": "Theme 1, point 3",
+      "original_text": "In Europe, the ECB raised rates by 25 basis points to 2.50% unanimously and offered no guidance on its next move. Its projections revised inflation higher and keep it above target well into 2028, despite a relatively upbeat growth outlook.",
+      "corrected_text": "In Europe, the ECB raised rates by 25 basis points to 2.50% unanimously and offered no guidance on its next move. Its projections revised inflation higher and keep it above target well into 2028, alongside a relatively upbeat growth outlook.",
+      "reason": "Removes an unsupported contrast."
+    },
+    {
+      "target_id": "claim-a4-c3",
+      "location": "Extracted claim a4:c3",
+      "original_text": "For financial institutions, faster discovery-to-exploitation cycles and automated exploit chaining increase breach likelihood; unpatched software is described as a leading initial access route in many incidents.",
+      "corrected_text": "For financial institutions, frontier AI’s faster discovery-to-exploitation cycles and automated exploit chaining materially increase breach likelihood, with unpatched software becoming the leading initial access route in many incidents.",
+      "reason": "Restores the frontier-AI qualifier and strength of the finding."
+    },
+    {
+      "target_id": "theme-2-takeaway",
+      "location": "Theme 2 BBB’s read takeaway",
+      "original_text": "Uncertain payments raise banks’ cash buffers.",
+      "corrected_text": "Uncertain payments make banks hold more reserves.",
+      "reason": "Uses the evidence’s terminology without adding a broader interpretation."
+    },
+    {
+      "target_id": "theme-3-point-2-attribution",
+      "location": "Theme 3, point 2",
+      "original_text": "For financial institutions, the analysis identifies faster discovery-to-exploitation cycles and automated exploit chaining as factors increasing breach likelihood; it describes unpatched software as a leading initial access route in many incidents.",
+      "corrected_text": "For financial institutions, the FSI paper identifies faster discovery-to-exploitation cycles and automated exploit chaining as factors increasing breach likelihood; it describes unpatched software as a leading initial access route in many incidents.",
+      "reason": "Uses paper-level attribution."
+    }
+  ]
+}

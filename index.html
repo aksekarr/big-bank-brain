@@ -16,22 +16,35 @@
         <a href="#evidence">Evidence</a>
         <a href="#method">How it works</a>
       </nav>
-      <span class="header-mark" aria-hidden="true">●</span>
     </header>
 
     <main id="top">
       <section class="hero" aria-labelledby="headline">
-        <p class="eyebrow">INSTITUTIONAL INTELLIGENCE / <span id="window-label">LATEST BRIEFING</span></p>
-        <h1 id="headline">Loading briefing…</h1>
-        <div class="hero-foot">
-          <p id="overview" class="dek"></p>
-          <div class="review-state" id="review-state" aria-live="polite"></div>
+        <div class="hero-main">
+          <p class="eyebrow">AI-GENERATED BRIEFING / <span id="window-label">LATEST BRIEFING</span></p>
+          <p class="ai-explainer">An AI pipeline reads the latest public research from major financial institutions, extracts every claim, and writes this briefing—with each point traceable to its source.</p>
+          <p id="interpretation-legend" class="interpretation-legend" hidden>BBB’s read · AI interpretation, not the institutions’ view</p>
+          <p id="bottom-line" class="bottom-line" aria-live="polite"></p>
+          <h1 id="headline" class="synthesis-headline">Loading briefing…</h1>
+          <details class="full-overview"><summary>Full overview</summary><p id="overview" class="dek"></p></details>
         </div>
-        <div class="metrics" aria-label="Briefing coverage">
-          <div><strong id="publication-count">—</strong><span>publications</span></div>
-          <div><strong id="institution-count">—</strong><span>institutions</span></div>
-          <div><strong id="claim-count">—</strong><span>structured claims</span></div>
-        </div>
+        <aside class="coverage-panel" aria-labelledby="coverage-title">
+          <p id="coverage-title" class="eyebrow">THIS BRIEFING COVERS</p>
+          <div id="coverage-list"></div>
+        </aside>
+      </section>
+
+      <section class="process-strip" aria-label="Briefing process">
+        <div class="process-step"><strong id="publication-count">—</strong><span>publications read</span></div>
+        <span class="process-arrow" aria-hidden="true">→</span>
+        <div class="process-step"><strong id="claim-count">—</strong><span>claims extracted</span></div>
+        <span class="process-arrow" aria-hidden="true">→</span>
+        <div class="process-step"><strong id="theme-count">—</strong><span>themes synthesised</span></div>
+        <span class="process-arrow" aria-hidden="true">→</span>
+        <div class="process-step guardrail"><strong>Held</strong><span>auto-verification</span></div>
+        <span class="process-arrow" aria-hidden="true">→</span>
+        <div class="process-step review-step" id="review-state" aria-live="polite"></div>
+        <p class="run-meta" id="run-meta"></p>
       </section>
 
       <section class="briefing-wrap" id="briefing" aria-labelledby="briefing-label">
@@ -45,7 +58,7 @@
       <section class="evidence-intro" id="evidence" aria-labelledby="evidence-heading">
         <p class="eyebrow">EVIDENCE, NOT JUST OUTPUT</p>
         <h2 id="evidence-heading">Every briefing point traces back to a named institution and its published research.</h2>
-        <p>Open a point above to inspect the supporting structured claims and go straight to the original publisher page.</p>
+        <p>Open “See the detail” to inspect the AI-written points, their extracted claims and the publisher’s original article.</p>
       </section>
 
       <section class="method" id="method" aria-labelledby="method-heading">
@@ -54,18 +67,20 @@
           <h2 id="method-heading">A deliberately bounded route from public research to a reviewable briefing.</h2>
         </div>
         <ol class="pipeline" aria-label="Research pipeline">
-          <li><span>01</span><strong>Public research</strong><p>Only approved, public institutional analysis enters the process.</p></li>
-          <li><span>02</span><strong>AI extraction</strong><p>Research is converted into discrete, attributable claims.</p></li>
-          <li><span>03</span><strong>Structured evidence</strong><p>Every claim retains its article and institution reference.</p></li>
-          <li><span>04</span><strong>AI synthesis</strong><p>The briefing groups supported evidence into an editorial read.</p></li>
-          <li><span>05</span><strong>Factual verification</strong><p>An independent guardrail checks support before review.</p></li>
-          <li><span>06</span><strong>Human review</strong><p>A person makes the final decision before anything is presented as reviewed.</p></li>
+          <li><span>01</span><strong>Public research</strong><p>Approved institutions publish the source material; BBB only links back to it.</p></li>
+          <li><span>02</span><strong>AI extraction</strong><p>AI turns permitted research into specific claims with source references.</p></li>
+          <li><span>03</span><strong>Structured claims</strong><p>The claims are kept as evidence that can be inspected point by point.</p></li>
+          <li><span>04</span><strong>AI synthesis</strong><p>AI writes a concise briefing using that bounded evidence set.</p></li>
+          <li><span>05</span><strong>Verification</strong><p>An independent factual guardrail checks whether the evidence supports it.</p></li>
+          <li><span>06</span><strong>Human review</strong><p>A human decides whether the briefing is ready to be marked reviewed.</p></li>
         </ol>
+        <p class="interpretation-method">BBB’s read is checked to make sure every statement points to real extracted claims. It isn’t run through the factual verifier.</p>
+        <p id="human-review-summary" class="human-review-summary"></p>
         <div class="credibility-grid">
-          <article><span class="cred-number" id="test-count">—</span><h3>Offline tests</h3><p>Repeatable checks protect the pipeline without live calls or paid requests.</p></article>
-          <article><span class="cred-number">4</span><h3>Source adapters</h3><p>Separate readers handle the approved institutions’ public research.</p></article>
-          <article><span class="cred-number">SHA-256</span><h3>Snapshot provenance</h3><p>Exact input and result snapshots can be identified, not merely described.</p></article>
-          <article><span class="cred-number">FAIL CLOSED</span><h3>Verification guardrail</h3><p>Invalid verification responses block progression instead of being waved through.</p></article>
+          <article><span class="cred-number" id="test-count">—</span><h3>Offline tests</h3><p>Automated checks that run without calling the AI or spending money.</p></article>
+          <article><span class="cred-number">4</span><h3>Source adapters</h3><p>A dedicated reader for each institution’s public research.</p></article>
+          <article><span class="cred-number">SHA-256</span><h3>Snapshot provenance</h3><p>Every briefing is fingerprinted, so it can be traced to the exact research it came from.</p></article>
+          <article><span class="cred-number">FAIL CLOSED</span><h3>Verification guardrail</h3><p>If the checker can’t validate a briefing, it’s held back, not waved through.</p></article>
         </div>
         <article class="case-study">
           <p class="eyebrow">A SMALL BUT IMPORTANT TEST</p>
@@ -80,11 +95,6 @@
       <p>Built by Avi Karr with an AI coding agent.</p>
     </footer>
 
-    <dialog id="evidence-drawer" aria-labelledby="drawer-title">
-      <div class="drawer-top"><p class="eyebrow">POINT EVIDENCE</p><button class="close" type="button" aria-label="Close evidence panel">×</button></div>
-      <h2 id="drawer-title"></h2>
-      <div id="drawer-content"></div>
-    </dialog>
     <template id="article-template">
       <article class="source-card">
         <div class="source-card-top"><p class="institution"></p><time></time></div>
