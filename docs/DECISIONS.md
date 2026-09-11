@@ -38,6 +38,8 @@ Confirmed only when Avi signs off.
 
 | 2026-09-11 | Canonical wrapper only: 21,000 serialized UTF-8 request bytes and 127,060 microdollars per-snapshot reservation; evaluated verifier limits remain unchanged. No automatic cap expansion | Explicit approval following the measured 20,336-byte production request; reservation follows existing input/output costing assumptions; future over-cap requests require review |
 
+| 2026-09-11 | Canonical manual synthesis reuses evaluated synthesis semantics with separate cumulative exact-input accounting, one held response per input snapshot, and existing 20,000-byte/$0.10056 bounds | Approved canonical runtime integration; historical experiment state stays untouched. A new live run requires legitimate changed/new input, never byte manipulation to escape consumed verification |
+
 ## Proposed (awaiting Avi)
 
 | Decision | Why |

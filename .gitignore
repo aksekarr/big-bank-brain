@@ -85,3 +85,6 @@ __pycache__/
 /candidate-review.json
 
 /candidate-verification-ledger.json
+
+# Canonical manual synthesis accounting (historical spike stays separate)
+/candidate-synthesis-ledger.json
