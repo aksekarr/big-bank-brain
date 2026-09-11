@@ -61,3 +61,9 @@ __pycache__/
 /verifier-eval-ecb_despite-r1.json
 /verifier-eval-abn_retain-r1.json
 /verifier-eval-harmless_paraphrase-r1.json
+
+# Separate three-case Campaign 2
+/verifier-eval-v2-ledger.json
+/verifier-eval-v2-clean-r1.json
+/verifier-eval-v2-harmless_paraphrase-r1.json
+/verifier-eval-v2-abn_retain-r1.json

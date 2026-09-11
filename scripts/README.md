@@ -957,3 +957,23 @@ Storage failure keeps the slot consumed. Production verifier ledger/results and 
 stored synthesis are neither read nor written. All evaluation runtime names are ignored.
 No raw publisher content, repairs or publishing are involved. Offline tests establish
 controls, not live semantic detection quality.
+
+### Campaign 2: revised headline confirmation
+
+Campaign 2 requires explicit `--campaign v2`:
+
+```sh
+.venv/bin/python -B scripts/evaluate_verifier.py --campaign v2 --case clean
+# Only after separate live approval:
+.venv/bin/python -B scripts/evaluate_verifier.py --campaign v2 --case clean --live --limit 1
+```
+
+Only `clean`, `harmless_paraphrase` and `abn_retain` are permitted, using the
+`verifier_eval_v2` manifest/fixtures. One held r1 slot per case, three total,
+$0.12456 per reservation and $0.37368 cumulative. The unchanged request controls,
+no-retry policy and failure-stage audit apply. Attempts/results identify campaign v2.
+Its separate state is `verifier-eval-v2-ledger.json` and
+`verifier-eval-v2-<case>-r1.json`; existing results cannot be overwritten.
+Campaign 1 and production runtime state are not accessed by Campaign 2.
+Omitting `--campaign` retains the legacy Campaign 1 behaviour; it never selects v2
+or falls back between campaigns. Always use the explicit v2 command above for this round.

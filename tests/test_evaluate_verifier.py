@@ -145,3 +145,94 @@ class EvaluationRunnerTests(unittest.TestCase):
                 self.run_case()
         self.client.responses.create.assert_not_called()
         self.assertFalse((self.root/e.LEDGER).exists())
+
+    def test_v2_three_cases_isolation_provenance_and_cap(self):
+        protected = ['verification-spike-ledger.json', 'verification-result.json',
+                     'verification-result-2.json', e.LEDGER]
+        protected += [f'verifier-eval-{case}-r1.json' for case in e.CASES]
+        for name in protected:
+            (self.root/name).write_text('untouched')
+        original_read = Path.open
+        def guarded_open(path, *args, **kwargs):
+            if path in [self.root/name for name in protected]:
+                raise AssertionError('Production/Campaign 1 state accessed')
+            return original_read(path, *args, **kwargs)
+        with patch.object(Path, 'open', guarded_open):
+            for case in ('clean', 'harmless_paraphrase', 'abn_retain'):
+                record, payload, fingerprint, size = e.load_case(case, campaign='v2')
+                self.assertIn('BBVA’s rate outlooks depend', record['synthesis']['headline'])
+                self.assertEqual(payload, e.verifier.request_payload(record))
+                self.assertLessEqual(size, 20000)
+                self.assertNotIn('expected_overall', payload['input'][0]['content'])
+                e.run(case, root=self.root, client=self.client, campaign='v2')
+                result = json.loads((self.root/f'verifier-eval-v2-{case}-r1.json').read_text())
+                self.assertEqual(result['campaign'], 'v2')
+                self.assertEqual(result['fixture_sha256'], fingerprint)
+                with self.assertRaises(ValueError):
+                    e.run(case, root=self.root, client=self.client, campaign='v2')
+        ledger, held = e.load_ledger(self.root, 'v2')
+        self.assertEqual(len(held), 3)
+        self.assertEqual(sum(a['reserved_micro_usd'] for a in ledger['attempts']), 373680)
+        self.assertTrue(all(a['stage'] == 'stored' and a['campaign'] == 'v2' for a in ledger['attempts']))
+        self.assertEqual(self.client.responses.create.call_count, 3)
+        for name in protected:
+            self.assertEqual((self.root/name).read_text(), 'untouched')
+        # Exercise the aggregate branch independently of duplicate-case blocking.
+        with patch.object(e, 'load_ledger', return_value=(ledger, {'x','y','z'})):
+            with self.assertRaises(ValueError):
+                e.run('clean', root=self.root, client=self.client, campaign='v2')
+        self.assertEqual(self.client.responses.create.call_count, 3)
+
+    def test_v2_disallowed_hash_and_existing_output_preflight(self):
+        import shutil
+        with patch.object(e.verifier.synthesis.article, 'make_client') as make_client:
+            for case in set(e.CASES) - {'clean', 'harmless_paraphrase', 'abn_retain'}:
+                with self.assertRaises(ValueError):
+                    e.run(case, root=self.root, campaign='v2')
+            fixtures = self.root/'v2-fixtures'
+            shutil.copytree(e.campaign_settings('v2')[0], fixtures)
+            with (fixtures/'clean.json').open('a') as f:
+                f.write(' ')
+            with self.assertRaisesRegex(ValueError, 'hash'):
+                e.run('clean', root=self.root, fixtures=fixtures, campaign='v2')
+            destination = self.root/'verifier-eval-v2-clean-r1.json'
+            destination.write_text('preserve')
+            with self.assertRaisesRegex(ValueError, 'already exists'):
+                e.run('clean', root=self.root, campaign='v2')
+            make_client.assert_not_called()
+            self.assertEqual(destination.read_text(), 'preserve')
+            self.assertFalse((self.root/'verifier-eval-v2-ledger.json').exists())
+
+    def test_v2_failure_audit_and_blocking(self):
+        scenarios = [(NS(status='incomplete', error=None), 'result', 'validation_failed'),
+                     (TimeoutError(), 'pending', 'send_uncertain'),
+                     (None, 'result', 'storage_failed')]
+        for index, (response, outcome, stage) in enumerate(scenarios):
+            root = self.root/str(index)
+            root.mkdir()
+            if response is None:
+                self.client.responses.create.side_effect = self.response
+            elif isinstance(response, Exception):
+                self.client.responses.create.side_effect = response
+            else:
+                self.client.responses.create.side_effect = None
+                self.client.responses.create.return_value = response
+            with patch.object(e.verifier, 'save_new_result', side_effect=OSError('storage')):
+                with self.assertRaises((ValueError, OSError)):
+                    e.run('clean', root=root, client=self.client, campaign='v2')
+            attempt = e.load_ledger(root, 'v2')[0]['attempts'][0]
+            self.assertEqual((attempt['outcome'], attempt['stage']), (outcome, stage))
+            self.assertEqual(attempt['campaign'], 'v2')
+            with self.assertRaises(ValueError):
+                e.run('clean', root=root, client=self.client, campaign='v2')
+        self.assertEqual(self.client.responses.create.call_count, 3)
+
+    def test_campaign_cli_routing(self):
+        with patch.object(e, 'run', return_value={}) as run:
+            self.assertEqual(e.main(['--campaign','v2','--case','clean','--live','--limit','1']), 0)
+            run.assert_called_once_with('clean', campaign='v2')
+        with patch.object(e, 'run', return_value={}) as run:
+            self.assertEqual(e.main(['--case','clean','--live','--limit','1']), 0)
+            run.assert_called_once_with('clean', campaign='v1')
+        with self.assertRaises(SystemExit):
+            e.main(['--campaign','v3','--case','clean'])
