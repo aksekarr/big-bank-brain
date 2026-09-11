@@ -488,3 +488,110 @@ For this article, the previously measured 3,739 characters give an estimated
 prompt and schema. Actual UTF-8 characters and JSON escaping may increase this:
 no raw text was retained to reproduce its exact byte count. The live size guard
 still checks the actual complete payload against 8,000 bytes before any API request.
+
+## BIS READ feasibility (no AI extraction)
+
+```sh
+.venv/bin/python -B scripts/read_bis.py --limit 3
+```
+
+Uses existing discovery validation and processed state without writing either. Selects
+up to three currently eligible unprocessed BIS/FSI items in the confirmed London
+seven-date window. On 2026-09-11 only two snapshot items qualify; older items are
+not brought forward merely to fill the sample.
+
+Observed BIS publication HTML exposes `div.text__component` inside `article`.
+The source-specific parser captures its paragraphs, lists and section headings,
+excluding navigation, related/author cards outside the component, hidden text,
+scripts, figures, tables and footer material. Recognised components must close
+correctly and provide at least 200 characters and 35 paragraph words. This is a
+structural feasibility check, not semantic verification or a complete-paper claim.
+If HTML is unavailable, denied or unsuitable, the already-discovered RSS excerpt
+is used with explicit provenance; absent excerpts fail with no text. No extra feed
+fetch, API, PDF or linked-file request is made.
+
+Robots is checked before pages; requests identify the project, allow no redirects
+or retries, and stop further page access after failure/challenge. The existing
+20-second/2 MB READ guard and polite minimum three-second interval are retained.
+These are spike details, not newly selected production architecture. Disallowed
+BIS file paths, including `/sites/default/files/` and `/p/`, are never followed.
+
+Live inspection on 2026-09-11:
+- FSI Paper 28, “When machines attack: frontier AI cyber threats and policy responses
+  in the financial sector”, 2026-09-09: HTML publication prose, 1,790 characters /
+  approximately 230 words; no fallback.
+- Working Paper 1376, “What determines banks' excess demand for reserves?”,
+  2026-09-07: headed HTML research sections, 3,379 characters / approximately
+  513 words; no fallback.
+
+Both appear substantial enough for later semantic extraction of the available
+page-level research summary, not every result in the full paper. RSS descriptions
+are shorter; the reserves RSS excerpt visibly ends with an ellipsis and concatenates
+its opening heading with prose. It is preserved as supplied rather than repaired
+with invented content. No silent truncation is applied by READ.
+
+Diagnostics retain title, URL, publication date, institution, source, text provenance,
+fallback flag, character/word counts and `complete_paper_extracted: false`.
+The optional callback receives metadata, text and provenance transiently; no raw
+HTML or article text is saved, and no item is marked processed. The reader itself makes no AI request; the separate extraction CLI below uses the
+existing semantic schema.
+
+The existing six-field schema appears suitable for policy/financial research; empty
+asset/geography lists and a null time horizon remain valid when unsupported.
+Recommend the reserves working paper as the eventual first one-item AI test: its
+513-word research summary offers more depth than the FSI landing prose while being
+moderate in size. Any eventual complete-payload limit still needs checking with the
+actual BIS prompt/schema; READ counts are not token counts. Existing BIS terms,
+non-commercial-use, attribution and limited-reuse caveats remain documented in
+`docs/SOURCES.md`.
+
+Tests use synthetic HTML and mocked transport for content isolation, malformed pages,
+access failures, RSS fallback, transient callbacks and no state writes. Full suite:
+`.venv/bin/python -B -m unittest discover -s tests -v`.
+
+
+## BIS structured extraction (offline-tested; live test not yet authorised)
+
+Metadata-only exact-URL preview:
+
+```sh
+.venv/bin/python -B scripts/extract_bis.py --limit 1 --url 'https://www.bis.org/publications/working-paper-1376-what-determines-banks-excess-demand-reserves'
+```
+
+After Avi authorises the single paid test, the intended command is:
+
+```sh
+.venv/bin/python -B scripts/extract_bis.py --live --limit 1 --url 'https://www.bis.org/publications/working-paper-1376-what-determines-banks-excess-demand-reserves'
+```
+
+Only one item per invocation is accepted. Exact URLs must match an eligible,
+unprocessed BIS discovery item; they cannot bypass the London seven-day window.
+Without a URL the latest eligible unprocessed BIS item is selected. The metadata
+preview makes no network requests or state writes.
+
+This source-specific wrapper reuses the existing Responses client, exact six-field
+schema, validation/copy checks and budget helpers without changing BBVA or ABN.
+BIS instructions identify publication-page summaries/RSS excerpts as incomplete
+paper coverage and prohibit filling unsupported fields from outside knowledge.
+It retains Terra, low reasoning, strict output, no tools, no retries and store=False.
+
+Validated semantics are stored in ignored `bis-ai-extractions.json`, keyed by URL.
+Title, URL, publication date, institution/source, model and extraction timestamp stay
+outside the semantic fields. Deterministic `read_metadata` includes text provenance,
+RSS fallback status, character/word counts, `complete_paper_extracted: false` and
+the absence of chart/table/linked-report extraction. Raw HTML/text is never saved.
+Only successful validation followed by output persistence permits a processed-state
+acknowledgement; selection, READ, failure or refusal alone never marks an item processed.
+
+The separate ignored `bis-ai-spike-ledger.json` retains the three-model-call spike
+limit and $0.15 reservation budget. It is created on the first attempted call; absence
+means zero used. HTTP 401/429 rejected requests release reservations but stay audited;
+returned results consume slots even on refusal/validation failure; uncertain outcomes
+remain held pending review. BBVA and ABN ledgers are not used or changed.
+
+The reserves candidate's earlier 3,379-character READ size yields an estimated
+5,833-byte complete request using ASCII placeholder text and the actual prompt,
+schema and metadata. UTF-8 and JSON escaping can increase this; exact source bytes
+were not retained. The unchanged 8,000-byte actual-request guard stops before a call
+on oversized input, without truncation. Live size/quality remain unproven for BIS.
+No publisher fetch or paid API call was made during this extraction implementation.

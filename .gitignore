@@ -33,3 +33,7 @@ __pycache__/
 # Separate ABN AMRO AI spike results and budget
 /abn-amro-ai-spike-ledger.json
 /abn-amro-ai-extractions.json
+
+# Separate BIS AI spike results and budget
+/bis-ai-spike-ledger.json
+/bis-ai-extractions.json
