@@ -49,3 +49,5 @@ __pycache__/
 # Independent semantic-verification spike runtime state
 /verification-spike-ledger.json
 /verification-result.json
+
+/verification-result-2.json

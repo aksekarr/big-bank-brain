@@ -228,10 +228,29 @@ def size_report(record):
 
 MAX_REQUEST_BYTES = 20000
 RESERVE_MICRO_USD = 124560
-BUDGET_MICRO_USD = 130000
-MAX_CALLS = 1
+BUDGET_MICRO_USD = 249120
+MAX_CALLS = 2
 LEDGER = 'verification-spike-ledger.json'
 RESULT = 'verification-result.json'
+SECOND_RESULT = 'verification-result-2.json'
+
+
+class ExperimentPreflight(ValueError):
+    pass
+
+
+class SnapshotMismatch(ExperimentPreflight):
+    pass
+
+
+def save_new_result(data, path):
+    temporary = dedupe.prepare_json(data, path)
+    try:
+        # Atomic creation without replacement, even if a file appears after preflight.
+        os.link(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
+
 
 
 def load_ledger(root):
@@ -258,8 +277,13 @@ def run_live(root=synthesis.assembler.processing.ROOT, *, client=None):
     try:
         fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
         source_path = root / synthesis.RESULT
-        snapshot = dedupe.read_json(source_path)
-        snapshot_hash = hashlib.sha256(source_path.read_bytes()).hexdigest()
+        snapshot_bytes = source_path.read_bytes()
+        snapshot_hash = hashlib.sha256(snapshot_bytes).hexdigest()
+        def invalid_constant(_):
+            raise ValueError('Non-finite JSON number')
+        snapshot = json.loads(snapshot_bytes.decode('utf-8'),
+                              object_pairs_hook=dedupe.object_pairs,
+                              parse_constant=invalid_constant)
         payload = request_payload(snapshot)
         # Validate/project run context rather than persisting unknown snapshot fields.
         generated_at = dedupe.timestamp(snapshot.get('generated_at'))
@@ -276,6 +300,22 @@ def run_live(root=synthesis.assembler.processing.ROOT, *, client=None):
         held = synthesis.article.held_calls(ledger)
         if held >= MAX_CALLS or (held + 1) * RESERVE_MICRO_USD > BUDGET_MICRO_USD:
             raise ValueError('Verification allowance exhausted')
+        result_path = root / (SECOND_RESULT if held else RESULT)
+        if held:
+            held_attempts = [a for a in ledger['attempts'] if a['outcome'] != 'rejected']
+            if len(held_attempts) != 1 or held_attempts[0]['outcome'] != 'result':
+                raise ExperimentPreflight('Run #1 must have a returned result; pending attempts require review')
+            try:
+                first = dedupe.read_json(root / RESULT)
+            except (OSError, ValueError):
+                raise ExperimentPreflight('Run #1 result is missing or unreadable') from None
+            first_hash = first.get('source_snapshot_sha256') if isinstance(first, dict) else None
+            if not isinstance(first_hash, str) or not re.fullmatch(r'[0-9a-f]{64}', first_hash):
+                raise ExperimentPreflight('Run #1 result lacks a valid snapshot hash')
+            if first_hash != snapshot_hash:
+                raise SnapshotMismatch('Synthesis snapshot differs from verifier run #1')
+        if os.path.lexists(result_path):
+            raise ValueError('Verification result already exists; refusing overwrite')
         if client is None:
             owned_client = synthesis.article.make_client()
             client = owned_client
@@ -302,9 +342,9 @@ def run_live(root=synthesis.assembler.processing.ROOT, *, client=None):
                   'window': {'timezone': 'Europe/London', 'start_date': start.isoformat(),
                              'end_date': end.isoformat()},
                   'request_bytes': request_bytes, **findings}
-        synthesis.assembler.processing.write_json(result, root / RESULT)
+        save_new_result(result, result_path)
         return {'status': 'stored', 'stored': True, 'verdict': findings['verdict'],
-                'request_bytes': request_bytes, 'result_file': RESULT,
+                'request_bytes': request_bytes, 'result_file': result_path.name,
                 'model_calls_consumed': synthesis.article.held_calls(ledger)}
     finally:
         try:
@@ -327,6 +367,9 @@ def main(argv=None):
             print(json.dumps(run_live(), indent=2))
             return 0
         print(json.dumps(size_report(dedupe.read_json(args.input)), indent=2))
+    except ExperimentPreflight as error:
+        print(f'Verification stopped: {error}; no request sent.', file=sys.stderr)
+        return 1
     except Exception:
         print('Verification stopped before successful completion; inspect ledger before any further attempt.', file=sys.stderr)
         return 1

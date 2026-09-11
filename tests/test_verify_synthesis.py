@@ -247,13 +247,18 @@ class LiveVerifierTests(unittest.TestCase):
         self.assertEqual(kwargs['reasoning'],{'effort':'medium'})
         self.assertEqual(kwargs['max_output_tokens'],6000)
         self.assertEqual((v.MAX_REQUEST_BYTES,v.RESERVE_MICRO_USD,v.BUDGET_MICRO_USD,v.MAX_CALLS),
-                         (20000,124560,130000,1))
+                         (20000,124560,249120,2))
         saved=json.loads((self.root/v.RESULT).read_text())
         self.assertEqual(saved['verdict'],'pass')
         self.assertEqual(saved['targets'],verdict()['targets'])
         self.assertEqual(v.load_ledger(self.root)['attempts'][0]['reserved_micro_usd'],124560)
+        first_bytes=(self.root/v.RESULT).read_bytes()
+        first_attempt=copy.deepcopy(v.load_ledger(self.root)['attempts'][0])
+        self.assertEqual(self.run_live()['result_file'],v.SECOND_RESULT)
+        self.assertEqual((self.root/v.RESULT).read_bytes(),first_bytes)
+        self.assertEqual(v.load_ledger(self.root)['attempts'][0],first_attempt)
         with self.assertRaises(ValueError):self.run_live()
-        self.client.responses.create.assert_called_once()
+        self.assertEqual(self.client.responses.create.call_count,2)
         self.assertEqual(self.source.read_bytes(),self.original)
         for name in ['bbva-ai-spike-ledger.json','synthesis-spike-ledger.json']:
             self.assertEqual((self.root/name).read_text(),'unchanged')
@@ -294,7 +299,7 @@ class LiveVerifierTests(unittest.TestCase):
         self.client.responses.create.side_effect=TimeoutError()
         with self.assertRaises(ValueError):self.run_live()
         self.assertEqual(v.load_ledger(self.root)['attempts'][0]['outcome'],'pending')
-        with self.assertRaises(ValueError):self.run_live()
+        with self.assertRaisesRegex(v.ExperimentPreflight,'pending'):self.run_live()
         self.client.responses.create.assert_called_once()
         self.assertEqual(self.source.read_bytes(),self.original)
 
@@ -313,11 +318,11 @@ class LiveVerifierTests(unittest.TestCase):
         invalid=self.response({});invalid.output[0].content[0].text='not JSON';cases.append(invalid)
         for response in cases:
             (self.root/v.LEDGER).unlink(missing_ok=True)
-            (self.root/v.RESULT).write_text('previous good')
+            (self.root/v.RESULT).unlink(missing_ok=True)
             self.client.responses.create.return_value=response
             with self.assertRaises(ValueError):self.run_live()
             self.assertEqual(v.load_ledger(self.root)['attempts'][0]['outcome'],'result')
-            self.assertEqual((self.root/v.RESULT).read_text(),'previous good')
+            self.assertFalse((self.root/v.RESULT).exists())
             self.assertEqual(self.source.read_bytes(),self.original)
 
     def test_valid_fail_is_stored_without_repair(self):
@@ -328,17 +333,88 @@ class LiveVerifierTests(unittest.TestCase):
     def test_storage_failure_preserves_result_and_no_raw_fields(self):
         self.record['raw_html']='RAW_MARKER'
         self.source.write_text(json.dumps(self.record));before=self.source.read_bytes()
-        result=self.root/v.RESULT;result.write_text('previous good')
-        original=v.synthesis.assembler.processing.write_json
+        result=self.root/v.RESULT
+        original=v.save_new_result
         def write(data,path):
             self.assertNotIn('RAW_MARKER',json.dumps(data))
             if path==result:raise OSError('write failed')
             original(data,path)
-        with patch.object(v.synthesis.assembler.processing,'write_json',side_effect=write):
+        with patch.object(v,'save_new_result',side_effect=write):
             with self.assertRaises(OSError):self.run_live()
-        self.assertEqual(result.read_text(),'previous good')
+        self.assertFalse(result.exists())
         self.assertEqual(self.source.read_bytes(),before)
         self.assertEqual(v.load_ledger(self.root)['attempts'][0]['outcome'],'result')
+
+    def test_second_snapshot_and_existing_output_guards(self):
+        self.run_live()
+        self.client.responses.create.reset_mock()
+        ledger_before=(self.root/v.LEDGER).read_bytes()
+        first_before=(self.root/v.RESULT).read_bytes()
+        self.source.write_bytes(self.original+b' ')
+        with self.assertRaises(v.SnapshotMismatch):self.run_live()
+        self.source.write_bytes(self.original)
+        second=self.root/v.SECOND_RESULT;second.write_text('preserve')
+        with self.assertRaises(ValueError):self.run_live()
+        self.client.responses.create.assert_not_called()
+        self.assertEqual(second.read_text(),'preserve')
+        self.assertEqual((self.root/v.RESULT).read_bytes(),first_before)
+        self.assertEqual((self.root/v.LEDGER).read_bytes(),ledger_before)
+
+    def test_existing_first_and_atomic_no_overwrite(self):
+        path=self.root/v.RESULT;path.write_text('preserve')
+        with self.assertRaises(ValueError):self.run_live()
+        self.client.responses.create.assert_not_called()
+        with self.assertRaises(FileExistsError):v.save_new_result({'test':True},path)
+        self.assertEqual(path.read_text(),'preserve')
+
+    def test_second_response_failures_preserve_first(self):
+        self.run_live()
+        first=(self.root/v.RESULT).read_bytes()
+        ledger=(self.root/v.LEDGER).read_bytes()
+        for response in [self.response({}), NS(status='incomplete',error=None),
+                         NS(status='completed',error=None,output=[NS(type='message',status='completed',content=[NS(type='refusal')])])]:
+            (self.root/v.LEDGER).write_bytes(ledger)
+            self.client.responses.create.return_value=response
+            with self.assertRaises(ValueError):self.run_live()
+            self.assertEqual((self.root/v.RESULT).read_bytes(),first)
+            self.assertFalse((self.root/v.SECOND_RESULT).exists())
+            self.assertEqual(v.load_ledger(self.root)['attempts'][1]['outcome'],'result')
+
+    def test_second_storage_failure_preserves_first(self):
+        self.run_live()
+        first=(self.root/v.RESULT).read_bytes()
+        with patch.object(v,'save_new_result',side_effect=OSError('storage failed')):
+            with self.assertRaises(OSError):self.run_live()
+        self.assertEqual((self.root/v.RESULT).read_bytes(),first)
+        self.assertFalse((self.root/v.SECOND_RESULT).exists())
+        self.assertEqual(v.load_ledger(self.root)['attempts'][1]['outcome'],'result')
+
+    def test_missing_first_result_and_hash_stop_before_send(self):
+        self.run_live();self.client.responses.create.reset_mock()
+        first=self.root/v.RESULT
+        first.unlink()
+        with self.assertRaisesRegex(v.ExperimentPreflight,'missing'):self.run_live()
+        first.write_text('{}')
+        with self.assertRaisesRegex(v.ExperimentPreflight,'hash'):self.run_live()
+        self.client.responses.create.assert_not_called()
+
+    def test_request_and_hash_use_single_read(self):
+        import hashlib
+        self.run_live()
+        original_read=Path.read_bytes
+        reads=[]
+        def read(path):
+            if path==self.source:
+                reads.append(path)
+                if len(reads)>1:raise AssertionError('Snapshot read twice')
+                return self.original
+            return original_read(path)
+        with patch.object(Path,'read_bytes',read):
+            self.run_live()
+        self.assertEqual(len(reads),1)
+        self.assertEqual(self.client.responses.create.call_args.kwargs,v.request_payload(self.record))
+        saved=json.loads((self.root/v.SECOND_RESULT).read_text())
+        self.assertEqual(saved['source_snapshot_sha256'],hashlib.sha256(self.original).hexdigest())
 
     def test_cli_one_call_limit(self):
         with self.assertRaises(SystemExit):v.main(['--live','--limit','2'])
