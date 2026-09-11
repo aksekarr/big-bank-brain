@@ -130,5 +130,108 @@ class SynthesisTests(unittest.TestCase):
                          report['schema_and_other_overhead_bytes'])
 
 
+class LiveControlsTests(unittest.TestCase):
+    def setUp(self):
+        import tempfile
+        from unittest.mock import Mock
+        self.tmp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.tmp.cleanup)
+        self.root = Path(self.tmp.name)
+        self.client = Mock()
+        self.client.responses.create.return_value = NS(status='completed', error=None, output=[
+            NS(type='message', status='completed', content=[NS(type='output_text', text=json.dumps(output()))])])
+        self.assembly = patch.object(s.assembler, 'assemble', return_value=packet())
+        self.assembly.start()
+        self.addCleanup(self.assembly.stop)
+
+    def run_live(self):
+        return s.run_live(self.root, client=self.client)
+
+    def test_success_and_second_call_blocked(self):
+        sentinel = self.root / 'bbva-ai-spike-ledger.json'
+        sentinel.write_text('unchanged')
+        self.assertTrue(self.run_live()['stored'])
+        record = json.loads((self.root/s.RESULT).read_text())
+        self.assertEqual(record['synthesis'], output())
+        self.assertEqual(record['articles'][0]['claims'][0]['ref'], 'a1:c1')
+        self.assertEqual(s.load_ledger(self.root)['attempts'][0]['reserved_micro_usd'],100560)
+        self.assertEqual((s.MAX_CALLS,s.BUDGET_MICRO_USD,s.MAX_REQUEST_BYTES),(1,110000,20000))
+        with self.assertRaises(ValueError):self.run_live()
+        self.client.responses.create.assert_called_once()
+        self.assertEqual(sentinel.read_text(),'unchanged')
+
+    def test_guard_boundary_and_oversize(self):
+        size=s.size_report(packet())['complete_request_bytes']
+        with patch.object(s,'MAX_REQUEST_BYTES',size-1):
+            with self.assertRaises(ValueError):self.run_live()
+        self.client.responses.create.assert_not_called()
+        self.assertFalse((self.root/s.LEDGER).exists())
+        with patch.object(s,'MAX_REQUEST_BYTES',size):self.run_live()
+
+    def test_budget_blocks_before_request(self):
+        with patch.object(s,'BUDGET_MICRO_USD',100559):
+            with self.assertRaises(ValueError):self.run_live()
+        self.client.responses.create.assert_not_called()
+
+    def test_rejections_release_but_no_retry(self):
+        for code in (401,429):
+            error=Exception('secret must not be printed');error.status_code=code
+            self.client.responses.create.side_effect=error
+            with self.assertRaises(ValueError):self.run_live()
+            self.assertEqual(s.article.held_calls(s.load_ledger(self.root)),0)
+        self.assertEqual(self.client.responses.create.call_count,2)
+        self.assertFalse((self.root/s.RESULT).exists())
+
+    def test_uncertain_failure_remains_pending(self):
+        self.client.responses.create.side_effect=TimeoutError()
+        with self.assertRaises(ValueError):self.run_live()
+        self.assertEqual(s.load_ledger(self.root)['attempts'][0]['outcome'],'pending')
+        with self.assertRaises(ValueError):self.run_live()
+        self.client.responses.create.assert_called_once()
+
+    def test_invalid_responses_consume_and_preserve_previous_result(self):
+        cases=[NS(status='incomplete',error=None,output=[]),
+               NS(status='completed',error=None,output=[NS(type='message',status='completed',content=[NS(type='refusal')])])]
+        for value in ({},dict(output(),themes=[{'title':'T','points':[{'text':'Claim','references':['a9:c1']}]}]),
+                      dict(output(),themes=[{'title':'T','points':[{'text':'Claim','references':['bad']}]}])):
+            cases.append(NS(status='completed',error=None,output=[NS(type='message',status='completed',content=[NS(type='output_text',text=json.dumps(value))])]))
+        for response in cases:
+            with self.subTest(response=response):
+                (self.root/s.LEDGER).unlink(missing_ok=True)
+                (self.root/s.RESULT).write_text('previous good')
+                self.client.responses.create.return_value=response
+                with self.assertRaises(ValueError):self.run_live()
+                self.assertEqual(s.load_ledger(self.root)['attempts'][0]['outcome'],'result')
+                self.assertEqual((self.root/s.RESULT).read_text(),'previous good')
+
+    def test_empty_and_missing_key(self):
+        empty=packet();empty['articles']=[]
+        with patch.object(s.assembler,'assemble',return_value=empty):
+            self.assertFalse(self.run_live()['stored'])
+        with patch.dict('os.environ',{},clear=True):
+            with self.assertRaises(ValueError):s.run_live(self.root)
+        self.client.responses.create.assert_not_called()
+        self.assertFalse((self.root/s.LEDGER).exists())
+
+    def test_storage_failure_and_raw_projection(self):
+        p=packet();p['articles'][0]['raw_html']='RAW_SENTINEL'
+        p['articles'][0]['read_depth']['article_text']='RAW_SENTINEL'
+        old=self.root/s.RESULT;old.write_text('previous good')
+        original=s.assembler.processing.write_json
+        def write(data,path):
+            self.assertNotIn('RAW_SENTINEL',json.dumps(data))
+            if path==old:raise OSError('storage failed')
+            original(data,path)
+        with patch.object(s.assembler,'assemble',return_value=p),patch.object(s.assembler.processing,'write_json',side_effect=write):
+            with self.assertRaises(OSError):self.run_live()
+        self.assertEqual(old.read_text(),'previous good')
+        self.assertEqual(s.load_ledger(self.root)['attempts'][0]['outcome'],'result')
+
+    def test_cli_limit_and_historical_override_blocked(self):
+        with patch.object(s,'run_live') as live:
+            with self.assertRaises(SystemExit):s.main(['--live','--limit','2'])
+            self.assertEqual(s.main(['--live','--date','2026-09-11']),1)
+            live.assert_not_called()
+
 if __name__=='__main__':
     unittest.main()

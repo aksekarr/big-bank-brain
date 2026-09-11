@@ -1,9 +1,11 @@
 """Offline synthesis request construction and structural/reference validation only."""
 import argparse
 import json
+import fcntl
+import os
 import re
 import sys
-from datetime import date
+from datetime import date, datetime, timezone
 
 import assemble_synthesis as assembler
 import dedupe
@@ -195,15 +197,106 @@ def size_report(packet):
             'claim_references': [c['ref'] for a in packet['articles'] for c in a['claims']]}
 
 
+MAX_REQUEST_BYTES = 20000
+RESERVE_MICRO_USD = 100560
+BUDGET_MICRO_USD = 110000
+MAX_CALLS = 1
+LEDGER = 'synthesis-spike-ledger.json'
+RESULT = 'synthesis-result.json'
+
+
+def load_ledger(root):
+    path = root / LEDGER
+    ledger = dedupe.read_json(path) if path.exists() else {'version': 1, 'attempts': []}
+    if not isinstance(ledger, dict) or ledger.get('version') != 1 or not isinstance(ledger.get('attempts'), list):
+        raise ValueError('Invalid synthesis ledger')
+    for attempt in ledger['attempts']:
+        if (not isinstance(attempt, dict)
+                or attempt.get('reserved_micro_usd') != RESERVE_MICRO_USD
+                or attempt.get('outcome') not in {'pending', 'result', 'rejected'}):
+            raise ValueError('Invalid synthesis reservation')
+        dedupe.timestamp(attempt.get('reserved_at'))
+        if attempt['outcome'] == 'rejected' and attempt.get('http_status') not in {401, 429}:
+            raise ValueError('Invalid released reservation')
+    if article.held_calls(ledger) > MAX_CALLS:
+        raise ValueError('Invalid synthesis call count')
+    return ledger
+
+
+def run_live(root=assembler.processing.ROOT, *, client=None, now=None):
+    # Assemble before taking the exclusive directory lock: assembler uses its own
+    # shared lock. The resulting immutable packet is the evidence for this run.
+    packet = assembler.assemble(root, now=now)
+    payload = request_payload(packet)
+    if payload is None:
+        return {'status': 'nothing_to_synthesise', 'stored': False}
+    request_bytes = len(json.dumps(payload, ensure_ascii=False).encode('utf-8'))
+    if request_bytes > MAX_REQUEST_BYTES:
+        raise ValueError('Synthesis request exceeds cap; no truncation')
+    descriptor = os.open(root, os.O_RDONLY)
+    owned_client = None
+    try:
+        fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        ledger = load_ledger(root)
+        held = article.held_calls(ledger)
+        if held >= MAX_CALLS or (held + 1) * RESERVE_MICRO_USD > BUDGET_MICRO_USD:
+            raise ValueError('Synthesis spike allowance exhausted')
+        if client is None:
+            owned_client = article.make_client()
+            client = owned_client
+        attempt = {'reserved_at': datetime.now(timezone.utc).isoformat(),
+                   'reserved_micro_usd': RESERVE_MICRO_USD,
+                   'request_bytes': request_bytes, 'outcome': 'pending'}
+        ledger['attempts'].append(attempt)
+        assembler.processing.write_json(ledger, root / LEDGER)
+        try:
+            response = client.responses.create(**payload)
+        except Exception as error:
+            status = getattr(error, 'status_code', None)
+            if type(status) is int and status in {401, 429}:
+                attempt.update(outcome='rejected', http_status=status)
+            # Other failures are uncertain: keep reservation, never retry.
+            assembler.processing.write_json(ledger, root / LEDGER)
+            raise ValueError('Synthesis request failed; no retry') from None
+        attempt['outcome'] = 'result'
+        assembler.processing.write_json(ledger, root / LEDGER)
+        synthesis = parse_response(response, packet)
+        data = clean_packet(packet)
+        record = {'version': 1, 'model': payload['model'],
+                  'generated_at': datetime.now(timezone.utc).isoformat(),
+                  'window': data['window'], 'request_bytes': request_bytes,
+                  'coverage': {'article_count': len(data['articles']),
+                               'institutions': sorted({a['institution'] for a in data['articles']})},
+                  'articles': [{k: a[k] for k in ['article_ref', 'institution', 'source_name',
+                                                 'title', 'url', 'publication_date', 'claims', 'read_depth']}
+                               for a in data['articles']],
+                  'synthesis': synthesis}
+        # Atomic replacement preserves the previous good result on write failure.
+        assembler.processing.write_json(record, root / RESULT)
+        return {'status': 'stored', 'stored': True, 'request_bytes': request_bytes,
+                'result_file': RESULT, 'model_calls_consumed': article.held_calls(ledger)}
+    finally:
+        if owned_client is not None:
+            owned_client.close()
+        os.close(descriptor)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--date', type=date.fromisoformat)
+    parser.add_argument('--live', action='store_true')
+    parser.add_argument('--limit', type=int, choices=[1], default=1)
     args = parser.parse_args(argv)
     try:
+        if args.live:
+            if args.date is not None:
+                raise ValueError('Live mode uses the current calendar window')
+            print(json.dumps(run_live(), indent=2))
+            return 0
         packet = assembler.assemble(now=args.date)
         print(json.dumps(size_report(packet), indent=2))
-    except (ValueError, TypeError, KeyError, OSError):
-        print('Offline synthesis construction failed; no request sent.', file=sys.stderr)
+    except Exception:
+        print('Synthesis stopped before successful completion; inspect ledger before any further attempt.', file=sys.stderr)
         return 1
     return 0
 

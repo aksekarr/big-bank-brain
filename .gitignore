@@ -41,3 +41,7 @@ __pycache__/
 # Separate Liberty Street AI spike results and budget
 /nyfed-lse-ai-spike-ledger.json
 /nyfed-lse-ai-extractions.json
+
+# Local synthesis spike output and independent call allowance
+/synthesis-spike-ledger.json
+/synthesis-result.json

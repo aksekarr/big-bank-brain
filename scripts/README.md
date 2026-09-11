@@ -769,8 +769,11 @@ tracking, verification, publishing or fallback implementation is included.
 ```
 
 Builds an unsent Responses payload from the deterministic assembler and prints only
-size/reference diagnostics. No SDK client, live flag, request ledger, output file,
-retry, publishing, verification or frontend exists in this module.
+size/reference diagnostics by default. Live synthesis execution was proven with one
+authorised call: 13,510 request bytes, validation passed and result stored. Manual
+review found semantic weaknesses, including a Türkiye conditional-language error;
+this proves execution, not editorial correctness. Publishing, verification and
+frontend remain unimplemented.
 
 Model output is exactly headline, overview and themes; each theme has title and
 points, and each point has text and references. Objects reject unknown fields.
@@ -807,13 +810,33 @@ Instructions: 3,025 raw UTF-8 bytes. Within the project's JSON sizing convention
 input contributes 9,240 bytes after escaping; instructions 3,061; schema/other
 scaffolding 1,209; total 13,510. This is not the literal SDK HTTP-body size.
 
-Recommended, not implemented or authorised: a separate 20,000-byte synthesis guard,
-allowing growth beyond the current measured input, with no chunking. Using the
-previous conservative pricing assumptions, (20,000 + 1,024) × $2.50/million +
-4,000 × $12/million reserves $0.10056 per call. A first live spike of exactly one
-call could use a $0.11 ceiling. Prices/limits must be reviewed before authorising
-live execution; these are reservations, not measured billing. Existing extraction
-guards and ledgers are unchanged.
+Synthesis-specific controls are now implemented: a 20,000-byte complete-request
+limit, $0.10056 reservation, $0.11 spike budget and maximum one model call. Runtime
+recalculates request size without truncation. Extraction controls remain unchanged.
+These reservations are safety allowances, not measured billing.
 
-Proposed future command: `.venv/bin/python -B scripts/synthesise.py --live --limit 1`.
-It is intentionally NOT implemented/runnable yet. Current supported CLI is offline.
+Live command used for the completed spike (one-call allowance now exhausted):
+
+```sh
+.venv/bin/python -B scripts/synthesise.py --live --limit 1
+```
+
+Live mode always assembles the current Europe/London window; --date is offline-only.
+Empty input makes no request. The existing official client configuration disables
+retries, proxies and redirects and uses store=False with no tools. Missing credentials
+stop before reservation; no key is stored or printed by this command.
+
+`synthesis-spike-ledger.json` is separate from extraction ledgers. A reservation is
+atomically saved before sending. Definite 401/429 rejections release capacity and stay
+in audit history; other uncertain failures remain pending. Every returned Responses
+result consumes the slot, including refusals, incomplete or invalid output. No retry
+occurs. A directory lock prevents concurrent calls escaping the one-call allowance.
+Do not delete/reset the ledger to obtain another call; later changes require review.
+
+`synthesis-result.json` is atomically replaced only after structure and claim-reference
+validation. It stores our synthesis, model/time/window, deterministic coverage,
+article identities, URLs/dates, claim map, READ depth and request size. Unknown/raw
+input fields are projected out. Failures preserve the previous good result; a storage
+failure after a model result still consumes the slot. Neither generated file is tracked.
+No article is marked processed, no publication occurs and semantic verification has
+not been implemented. Default offline diagnostics create neither runtime file.
