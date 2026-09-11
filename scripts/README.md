@@ -707,3 +707,57 @@ Offline tests include request/schema/attribution construction, exact size bounda
 budget enforcement, response failures, no retries, eligibility, no raw persistence
 and preserved existing-source defaults. No publisher fetch or OpenAI call occurred
 during this extraction implementation.
+
+## Offline synthesis-input assembler
+
+```sh
+.venv/bin/python -B scripts/assemble_synthesis.py
+.venv/bin/python -B scripts/assemble_synthesis.py --date 2026-09-11
+```
+
+Prints derived JSON to stdout only: `window`, `coverage`, `articles` and
+`diagnostics`. No file is created, no discovery/publisher/model request occurs,
+and extraction/processed state is never modified. The Python `assemble(root, now)`
+function also accepts a timezone-aware datetime (converted to London) or explicit
+London calendar date. The window is today plus the previous six dates.
+
+Every included URL must have validated six-field semantics and a successful processed
+entry. Metadata is checked against its source file, approved hostname and URL key.
+Missing/invalid publication dates or metadata invalidate the article; out-of-window
+and unprocessed items are excluded with diagnostics. Processed URLs without stored
+extractions are reported. A missing result file is reported but does not suppress
+other sources; a corrupt file is skipped/reported. Invalid individual records are
+skipped/reported while unrelated valid records survive. Missing processed state
+means none are processed, with a diagnostic; corrupt processed state stops assembly.
+A shared directory lock avoids observing the middle of supported state mutations.
+
+URL identity uses existing safe normalisation. Equivalent duplicate records collapse
+to one; any disagreement in the projected metadata, semantics or READ depth quarantines
+that URL with a conflict diagnostic. Invalid records also quarantine their identifiable
+URL. Model/extraction timestamps and unrecognised fields do not affect the derived
+article comparison. No semantic merging or winner selection is attempted.
+
+Articles sort by publication date descending, then institution, title and URL
+ascending before receiving `a1`, `a2`, etc. Stored claim order is preserved with
+`{ref: "a1:c1", text: "..."}` entries. References are reproducible for the same input
+set, not permanent IDs across changing windows. Coverage counts only included records
+and lists all four institutions, including zero counts.
+
+The article projection contains article_ref, institution, source_name, title, URL,
+publication_date, summary, topics, referenced claims, geographies,
+markets_or_asset_classes, time_horizon and read_depth. READ depth preserves BBVA's
+input_scope as scope and allowlisted structured text-source, listing/RSS fallback,
+completeness, character/word counts and chart/table/report flags from other sources.
+Unknown/missing fields stay absent; BBVA counts are not reconstructed. Raw/unknown
+input fields, model request envelopes and publisher bodies are never copied.
+
+Diagnostics are safe fixed reasons with source filenames/validated URLs; no raw
+record or exception bodies are printed. Successful assembly may be partial: consumers
+must inspect diagnostics rather than treating omitted material as nonexistent.
+Diagnostics describe assembly coverage, not publisher access health.
+
+On 2026-09-11: five usable articles, BBVA 3 / ABN 1 / BIS 1 / Liberty 0. Only the
+expected absent Liberty result file was reported. Pretty stdout measured 11,440
+UTF-8 bytes including its newline; compact equivalent 8,958 bytes. These are derived
+input sizes, not model-request sizes. No synthesis prompt/request, new-since-run
+tracking, verification, publishing or fallback implementation is included.
