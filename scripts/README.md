@@ -840,3 +840,65 @@ input fields are projected out. Failures preserve the previous good result; a st
 failure after a model result still consumes the slot. Neither generated file is tracked.
 No article is marked processed, no publication occurs and semantic verification has
 not been implemented. Default offline diagnostics create neither runtime file.
+
+## Offline semantic verification
+
+```sh
+.venv/bin/python -B scripts/verify_synthesis.py
+```
+
+Reads `synthesis-result.json`, constructs an unsent strict Responses request, and
+prints only sizes and deterministic point-to-claim references. Optional `--input`
+selects another saved result. No client, live flag, ledger, result writer, publisher
+fetch, repair, regeneration or publication is implemented. Existing state is untouched.
+The evidence is the claim universe saved with that synthesis, not today's assembler
+output. Unknown/raw fields are projected out. Input consists of headline/overview,
+ordered targets (headline, overview, tN theme titles and tN:pN points), exact text
+and evidence references, and article ref/institution/source/title/date plus exact
+stored claims. No summaries, URLs, READ text or raw publisher content are sent.
+All input is untrusted data. Headline/overview use the whole claim universe; themes
+use only the union of source claims attached to their member points; generated prose
+is structural context, never authoritative evidence. Points retain their own attached
+references: uncited global claims may diagnose partial support or reference mismatch,
+but cannot rescue an inadequately cited point. Headline/overview are independently
+audited against source claims, never agreement between generated passages.
+
+The judge checks factual support, reference adequacy, conditionality, attribution,
+cautious behavioural inference, prediction and relationship overreach for every target.
+Broad framing can fail even if points are accurate: shared vocabulary does not establish
+consensus, a common causal story, monetary-policy evidence or market consequences.
+It must explain failures without replacement prose. Any failed target means not yet
+approved for publication. No real model verification has occurred in this milestone.
+
+Strict output is verdict (pass/fail) and targets; each target contains target_ref,
+verdict and issues. Each issue contains type, explanation and references. Types:
+unsupported_statement, partial_support, conditionality_changed, attribution_changed,
+reference_mismatch, behavioural_overreach, prediction_overreach, relationship_overreach.
+All fields are required; extra fields are rejected. Bounds: 4–58 targets (matching the
+synthesis schema's maximum 8 themes/48 points plus headline/overview), up to 8 issues
+per target, explanations up to 1,200 characters and up to 32 issue references.
+Empty issue references are allowed for unsupported assertions or broad relationships;
+otherwise refs must belong to the saved universe. Do not invent arbitrary citations.
+Duplicate issue refs are rejected. Every expected target must appear exactly once;
+pass requires no issues, fail requires issues, and any failed target requires overall
+fail. These checks establish coherence only, not semantic truth. Mock tests do not
+encode truth judgements. The synthesis schema and stored synthesis remain unchanged.
+
+Current 12-target/28-claim request: 17,279 UTF-8 bytes by the existing serialization
+convention: synthesis/target scopes 5,849, evidence/metadata 4,991, escaped instructions
+4,927 and schema/scaffolding 1,512. No request is sent or SDK HTTP-body size claimed.
+
+Recommended for review, not implemented as live controls: retain a separate 20,000-byte
+guard and 6,000-token output ceiling for this small first test. There is 2,721-byte input
+headroom. An issue-heavy response may exceed the output limit; incomplete output must
+fail safely, not silently omit targets. No chunking is needed for this packet.
+Avi approved medium reasoning for the intended first live verification spike, given
+the sensitivity required for logic, attribution and support relationships. Offline
+construction now uses medium; no live execution is implemented. This is not a measured
+quality improvement. The output bound includes reasoning, so more
+reasoning may leave less space for findings. Do not increase it silently.
+Using existing conservative pricing assumptions, (20,000 + 1,024) × $2.50/million
++ 6,000 × $12/million = $0.12456 reservation; the proposed $0.13 one-call budget
+still covers these bounds. These are not newly verified prices or a guarantee that
+6,000 tokens always completes the task. Pricing and settings require live-task review.
+No existing extraction/synthesis budget or ledger is changed by these recommendations.
