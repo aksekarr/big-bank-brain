@@ -849,8 +849,9 @@ not been implemented. Default offline diagnostics create neither runtime file.
 
 Reads `synthesis-result.json`, constructs an unsent strict Responses request, and
 prints only sizes and deterministic point-to-claim references. Optional `--input`
-selects another saved result. No client, live flag, ledger, result writer, publisher
-fetch, repair, regeneration or publication is implemented. Existing state is untouched.
+selects another saved result in offline mode only. Live semantic-verification execution
+is implemented but NOT yet live-proven. No publisher fetch, repair, regeneration or
+publication is implemented. Default offline diagnostics leave state untouched.
 The evidence is the claim universe saved with that synthesis, not today's assembler
 output. Unknown/raw fields are projected out. Input consists of headline/overview,
 ordered targets (headline, overview, tN theme titles and tN:pN points), exact text
@@ -888,17 +889,41 @@ Current 12-target/28-claim request: 17,279 UTF-8 bytes by the existing serializa
 convention: synthesis/target scopes 5,849, evidence/metadata 4,991, escaped instructions
 4,927 and schema/scaffolding 1,512. No request is sent or SDK HTTP-body size claimed.
 
-Recommended for review, not implemented as live controls: retain a separate 20,000-byte
-guard and 6,000-token output ceiling for this small first test. There is 2,721-byte input
+Approved verifier-only live controls: a separate 20,000-byte request guard and
+6,000-token output ceiling for this small first test. There is 2,721-byte input
 headroom. An issue-heavy response may exceed the output limit; incomplete output must
 fail safely, not silently omit targets. No chunking is needed for this packet.
 Avi approved medium reasoning for the intended first live verification spike, given
 the sensitivity required for logic, attribution and support relationships. Offline
-construction now uses medium; no live execution is implemented. This is not a measured
+construction and the unproven live path use medium. This is not a measured
 quality improvement. The output bound includes reasoning, so more
 reasoning may leave less space for findings. Do not increase it silently.
 Using existing conservative pricing assumptions, (20,000 + 1,024) × $2.50/million
-+ 6,000 × $12/million = $0.12456 reservation; the proposed $0.13 one-call budget
++ 6,000 × $12/million = $0.12456 reservation; the approved $0.13 one-call budget
 still covers these bounds. These are not newly verified prices or a guarantee that
-6,000 tokens always completes the task. Pricing and settings require live-task review.
+6,000 tokens always completes the task. The live call itself still requires separate approval.
 No existing extraction/synthesis budget or ledger is changed by these recommendations.
+
+
+Eventual single live verifier command (not yet run):
+
+```sh
+.venv/bin/python -B scripts/verify_synthesis.py --live --limit 1
+```
+
+Live mode locks the project directory and loads only its saved synthesis snapshot.
+It validates input, recalculates complete request size and checks the separate one-call
+allowance before using the existing no-retry official client. No input truncation occurs.
+`verification-spike-ledger.json` reserves $0.12456 before sending; the total budget is
+$0.13. Definite 401/429 rejections release capacity while retaining audit history;
+uncertain failures remain pending; every returned response consumes the slot even if
+refused, incomplete or invalid. Missing credentials stop before reservation.
+
+`verification-result.json` is replaced atomically only after strict target/reference
+validation. It stores model, reasoning, verification time, source synthesis timestamp
+and snapshot SHA-256, window, request size, overall verdict and target findings. Both
+runtime files are ignored. A valid fail verdict is a successfully executed verification,
+not publication approval. Failure preserves any previous good verification output.
+Neither pass nor fail modifies the synthesis or processed state. Source extraction and
+synthesis controls/ledgers remain unchanged. No reset/retry, repair or publishing path
+is provided. The maximum initial verifier model-call allowance is one.

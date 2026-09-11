@@ -200,5 +200,131 @@ class VerifierTests(unittest.TestCase):
         self.assertEqual(s['complete_request_bytes'],len(json.dumps(v.request_payload(record()),ensure_ascii=False).encode()))
 
 
+class LiveVerifierTests(unittest.TestCase):
+    def setUp(self):
+        import tempfile
+        from unittest.mock import Mock
+        self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup)
+        self.root=Path(self.tmp.name)
+        self.record=record()
+        self.record.update(generated_at='2026-09-11T01:10:22+00:00',window=packet()['window'])
+        self.source=self.root/v.synthesis.RESULT
+        self.source.write_text(json.dumps(self.record))
+        self.original=self.source.read_bytes()
+        self.client=Mock()
+        self.client.responses.create.return_value=self.response(verdict())
+
+    def response(self, data):
+        return NS(status='completed',error=None,output=[NS(type='message',status='completed',
+                  content=[NS(type='output_text',text=json.dumps(data))])])
+
+    def run_live(self):
+        return v.run_live(self.root,client=self.client)
+
+    def test_success_settings_separate_ledgers_and_second_call(self):
+        for name in ['bbva-ai-spike-ledger.json','synthesis-spike-ledger.json']:
+            (self.root/name).write_text('unchanged')
+        with patch('socket.socket.connect',side_effect=AssertionError('No network')):
+            self.assertTrue(self.run_live()['stored'])
+        kwargs=self.client.responses.create.call_args.kwargs
+        self.assertEqual(kwargs['reasoning'],{'effort':'medium'})
+        self.assertEqual(kwargs['max_output_tokens'],6000)
+        self.assertEqual((v.MAX_REQUEST_BYTES,v.RESERVE_MICRO_USD,v.BUDGET_MICRO_USD,v.MAX_CALLS),
+                         (20000,124560,130000,1))
+        saved=json.loads((self.root/v.RESULT).read_text())
+        self.assertEqual(saved['verdict'],'pass')
+        self.assertEqual(saved['targets'],verdict()['targets'])
+        self.assertEqual(v.load_ledger(self.root)['attempts'][0]['reserved_micro_usd'],124560)
+        with self.assertRaises(ValueError):self.run_live()
+        self.client.responses.create.assert_called_once()
+        self.assertEqual(self.source.read_bytes(),self.original)
+        for name in ['bbva-ai-spike-ledger.json','synthesis-spike-ledger.json']:
+            self.assertEqual((self.root/name).read_text(),'unchanged')
+
+    def test_guard_and_budget_before_call(self):
+        size=v.size_report(self.record)['complete_request_bytes']
+        with patch.object(v,'MAX_REQUEST_BYTES',size-1):
+            with self.assertRaises(ValueError):self.run_live()
+        with patch.object(v,'BUDGET_MICRO_USD',124559):
+            with self.assertRaises(ValueError):self.run_live()
+        self.client.responses.create.assert_not_called()
+        self.assertFalse((self.root/v.LEDGER).exists())
+        with patch.object(v,'MAX_REQUEST_BYTES',size):self.run_live()
+
+    def test_missing_malformed_snapshot_and_key(self):
+        self.source.unlink()
+        with self.assertRaises(OSError):self.run_live()
+        for content in ['bad','{}']:
+            self.source.write_text(content)
+            with self.assertRaises(ValueError):self.run_live()
+            self.assertEqual(self.source.read_text(),content)
+        self.source.write_bytes(self.original)
+        with patch.dict('os.environ',{},clear=True):
+            with self.assertRaises(ValueError):v.run_live(self.root)
+        self.client.responses.create.assert_not_called()
+        self.assertFalse((self.root/v.LEDGER).exists())
+
+    def test_rejected_requests_release_without_retry(self):
+        for status in [401,429]:
+            error=Exception('private');error.status_code=status
+            self.client.responses.create.side_effect=error
+            with self.assertRaises(ValueError):self.run_live()
+            self.assertEqual(v.synthesis.article.held_calls(v.load_ledger(self.root)),0)
+        self.assertEqual(self.client.responses.create.call_count,2)
+        self.assertEqual(self.source.read_bytes(),self.original)
+
+    def test_timeout_pending_blocks_second_call(self):
+        self.client.responses.create.side_effect=TimeoutError()
+        with self.assertRaises(ValueError):self.run_live()
+        self.assertEqual(v.load_ledger(self.root)['attempts'][0]['outcome'],'pending')
+        with self.assertRaises(ValueError):self.run_live()
+        self.client.responses.create.assert_called_once()
+        self.assertEqual(self.source.read_bytes(),self.original)
+
+    def test_invalid_results_consume_and_preserve_good_output(self):
+        cases=[NS(status='incomplete',error=None),NS(status='completed',error=None,output=[
+            NS(type='message',status='completed',content=[NS(type='refusal')])])]
+        for mode in ['missing','duplicate','unknown','bad_ref','contradictory']:
+            x=verdict()
+            if mode=='missing':x['targets'].pop()
+            elif mode=='duplicate':x['targets'][0]=x['targets'][1]
+            elif mode=='unknown':x['targets'][0]['target_ref']='unknown'
+            elif mode=='bad_ref':
+                x=verdict('partial_support');x['targets'][-1]['issues'][0]['references']=['a99:c1']
+            else:x['verdict']='fail'
+            cases.append(self.response(x))
+        invalid=self.response({});invalid.output[0].content[0].text='not JSON';cases.append(invalid)
+        for response in cases:
+            (self.root/v.LEDGER).unlink(missing_ok=True)
+            (self.root/v.RESULT).write_text('previous good')
+            self.client.responses.create.return_value=response
+            with self.assertRaises(ValueError):self.run_live()
+            self.assertEqual(v.load_ledger(self.root)['attempts'][0]['outcome'],'result')
+            self.assertEqual((self.root/v.RESULT).read_text(),'previous good')
+            self.assertEqual(self.source.read_bytes(),self.original)
+
+    def test_valid_fail_is_stored_without_repair(self):
+        self.client.responses.create.return_value=self.response(verdict('partial_support'))
+        self.assertEqual(self.run_live()['verdict'],'fail')
+        self.assertEqual(self.source.read_bytes(),self.original)
+
+    def test_storage_failure_preserves_result_and_no_raw_fields(self):
+        self.record['raw_html']='RAW_MARKER'
+        self.source.write_text(json.dumps(self.record));before=self.source.read_bytes()
+        result=self.root/v.RESULT;result.write_text('previous good')
+        original=v.synthesis.assembler.processing.write_json
+        def write(data,path):
+            self.assertNotIn('RAW_MARKER',json.dumps(data))
+            if path==result:raise OSError('write failed')
+            original(data,path)
+        with patch.object(v.synthesis.assembler.processing,'write_json',side_effect=write):
+            with self.assertRaises(OSError):self.run_live()
+        self.assertEqual(result.read_text(),'previous good')
+        self.assertEqual(self.source.read_bytes(),before)
+        self.assertEqual(v.load_ledger(self.root)['attempts'][0]['outcome'],'result')
+
+    def test_cli_one_call_limit(self):
+        with self.assertRaises(SystemExit):v.main(['--live','--limit','2'])
+
 if __name__=='__main__':
     unittest.main()

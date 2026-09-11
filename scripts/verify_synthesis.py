@@ -1,6 +1,10 @@
-"""Offline semantic-verifier request and verdict validation. No live execution."""
+"""Semantic verifier: offline diagnostics by default; live calls require approval."""
 import argparse
 import json
+import fcntl
+import hashlib
+import os
+from datetime import datetime, timezone
 import re
 import sys
 from pathlib import Path
@@ -24,7 +28,7 @@ SCHEMA = synthesis.obj({
         })}
     })}
 })
-# Offline measurement settings only; no live allowance or cost guard exists here.
+# Approved verifier settings; independent of extraction and synthesis controls.
 REASONING = 'medium'
 MAX_OUTPUT_TOKENS = 6000
 INSTRUCTIONS = """Independently judge the semantic faithfulness of every verification target within its
@@ -210,14 +214,109 @@ def size_report(record):
             'targets': {p['target_ref']: p['references'] for p in data['synthesis']['targets']}}
 
 
+MAX_REQUEST_BYTES = 20000
+RESERVE_MICRO_USD = 124560
+BUDGET_MICRO_USD = 130000
+MAX_CALLS = 1
+LEDGER = 'verification-spike-ledger.json'
+RESULT = 'verification-result.json'
+
+
+def load_ledger(root):
+    path = root / LEDGER
+    ledger = dedupe.read_json(path) if path.exists() else {'version': 1, 'attempts': []}
+    if not isinstance(ledger, dict) or ledger.get('version') != 1 or not isinstance(ledger.get('attempts'), list):
+        raise ValueError('Invalid verification ledger')
+    for attempt in ledger['attempts']:
+        if (not isinstance(attempt, dict)
+                or attempt.get('reserved_micro_usd') != RESERVE_MICRO_USD
+                or attempt.get('outcome') not in {'pending', 'result', 'rejected'}):
+            raise ValueError('Invalid verification reservation')
+        dedupe.timestamp(attempt.get('reserved_at'))
+        if attempt['outcome'] == 'rejected' and attempt.get('http_status') not in {401, 429}:
+            raise ValueError('Invalid released reservation')
+    if synthesis.article.held_calls(ledger) > MAX_CALLS:
+        raise ValueError('Invalid verification call count')
+    return ledger
+
+
+def run_live(root=synthesis.assembler.processing.ROOT, *, client=None):
+    descriptor = os.open(root, os.O_RDONLY)
+    owned_client = None
+    try:
+        fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        source_path = root / synthesis.RESULT
+        snapshot = dedupe.read_json(source_path)
+        snapshot_hash = hashlib.sha256(source_path.read_bytes()).hexdigest()
+        payload = request_payload(snapshot)
+        # Validate/project run context rather than persisting unknown snapshot fields.
+        generated_at = dedupe.timestamp(snapshot.get('generated_at'))
+        window = snapshot.get('window')
+        if not isinstance(window, dict) or window.get('timezone') != 'Europe/London':
+            raise ValueError('Invalid synthesis window')
+        start, end = [synthesis.date.fromisoformat(window[k]) for k in ['start_date', 'end_date']]
+        if (end-start).days != 6:
+            raise ValueError('Invalid synthesis window')
+        request_bytes = len(json.dumps(payload, ensure_ascii=False).encode('utf-8'))
+        if request_bytes > MAX_REQUEST_BYTES:
+            raise ValueError('Verification request exceeds cap; no truncation')
+        ledger = load_ledger(root)
+        held = synthesis.article.held_calls(ledger)
+        if held >= MAX_CALLS or (held + 1) * RESERVE_MICRO_USD > BUDGET_MICRO_USD:
+            raise ValueError('Verification allowance exhausted')
+        if client is None:
+            owned_client = synthesis.article.make_client()
+            client = owned_client
+        attempt = {'reserved_at': datetime.now(timezone.utc).isoformat(),
+                   'reserved_micro_usd': RESERVE_MICRO_USD,
+                   'request_bytes': request_bytes, 'outcome': 'pending'}
+        ledger['attempts'].append(attempt)
+        synthesis.assembler.processing.write_json(ledger, root / LEDGER)
+        try:
+            response = client.responses.create(**payload)
+        except Exception as error:
+            status = getattr(error, 'status_code', None)
+            if type(status) is int and status in {401, 429}:
+                attempt.update(outcome='rejected', http_status=status)
+            synthesis.assembler.processing.write_json(ledger, root / LEDGER)
+            raise ValueError('Verification request failed; no retry') from None
+        attempt['outcome'] = 'result'
+        synthesis.assembler.processing.write_json(ledger, root / LEDGER)
+        findings = parse_response(response, snapshot)
+        result = {'version': 1, 'model': payload['model'], 'reasoning': REASONING,
+                  'verified_at': datetime.now(timezone.utc).isoformat(),
+                  'source_synthesis_generated_at': generated_at,
+                  'source_snapshot_sha256': snapshot_hash,
+                  'window': {'timezone': 'Europe/London', 'start_date': start.isoformat(),
+                             'end_date': end.isoformat()},
+                  'request_bytes': request_bytes, **findings}
+        synthesis.assembler.processing.write_json(result, root / RESULT)
+        return {'status': 'stored', 'stored': True, 'verdict': findings['verdict'],
+                'request_bytes': request_bytes, 'result_file': RESULT,
+                'model_calls_consumed': synthesis.article.held_calls(ledger)}
+    finally:
+        try:
+            if owned_client is not None:
+                owned_client.close()
+        finally:
+            os.close(descriptor)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--input', type=Path, default=synthesis.assembler.processing.ROOT / synthesis.RESULT)
+    parser.add_argument('--live', action='store_true')
+    parser.add_argument('--limit', type=int, choices=[1], default=1)
     args = parser.parse_args(argv)
     try:
+        if args.live:
+            if args.input != synthesis.assembler.processing.ROOT / synthesis.RESULT:
+                raise ValueError('Live mode uses the project synthesis snapshot')
+            print(json.dumps(run_live(), indent=2))
+            return 0
         print(json.dumps(size_report(dedupe.read_json(args.input)), indent=2))
-    except (ValueError, TypeError, KeyError, OSError):
-        print('Offline verifier input invalid; no request sent.', file=sys.stderr)
+    except Exception:
+        print('Verification stopped before successful completion; inspect ledger before any further attempt.', file=sys.stderr)
         return 1
     return 0
 

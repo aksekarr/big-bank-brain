@@ -45,3 +45,7 @@ __pycache__/
 # Local synthesis spike output and independent call allowance
 /synthesis-spike-ledger.json
 /synthesis-result.json
+
+# Independent semantic-verification spike runtime state
+/verification-spike-ledger.json
+/verification-result.json
