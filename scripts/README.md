@@ -761,3 +761,59 @@ expected absent Liberty result file was reported. Pretty stdout measured 11,440
 UTF-8 bytes including its newline; compact equivalent 8,958 bytes. These are derived
 input sizes, not model-request sizes. No synthesis prompt/request, new-since-run
 tracking, verification, publishing or fallback implementation is included.
+
+## Offline synthesis request and response validation
+
+```sh
+.venv/bin/python -B scripts/synthesise.py --date 2026-09-11
+```
+
+Builds an unsent Responses payload from the deterministic assembler and prints only
+size/reference diagnostics. No SDK client, live flag, request ledger, output file,
+retry, publishing, verification or frontend exists in this module.
+
+Model output is exactly headline, overview and themes; each theme has title and
+points, and each point has text and references. Objects reject unknown fields.
+Strings must be nonblank; limits are headline/theme-title 160 characters, overview
+1,200, point text 1,000. Nonempty input allows 1–8 themes, each with 1–6 points and
+1–32 references per point. These are maximum safety bounds, not theme-count targets.
+Each reference must be an existing claim ref of form aN:cN with positive numbers;
+duplicates within a point are rejected. Reusing a claim across points is permitted.
+The response reader rejects refusals, incomplete results, unexpected output and
+malformed/duplicate-key JSON. This establishes structure/reference integrity only,
+not factual support or overview consistency; separate AI verification remains planned.
+
+Instructions require supplied semantics only, data/instruction separation, grounded
+theme grouping, preserved numbers/conditions/horizons, author/institution attribution,
+no invented names or consensus/disagreement/ranking, and no investment advice.
+Optional behavioural implications must follow reasonably supported causal connections
+in cited claims and be framed cautiously as our analysis, not as source-stated views
+or observed behaviour. Actual flows/positioning/trading and unsupported price predictions
+must not be invented; insufficient evidence means omitting the implication. Structural
+tests do not establish semantic support; that remains for planned AI verification.
+Uncited overview assertions must be represented in cited theme points. The request
+uses the approved Terra model, low reasoning, strict output, no tools, store=False,
+and a 4,000-output-token bound for this offline design.
+
+Input projection revalidates semantics and reference structure and includes only
+window plus allowlisted article metadata/semantics/depth. Coverage and diagnostics
+remain local; unknown/raw fields are dropped. This builder is intended to receive
+assembler output, not establish processed status independently. Empty articles
+return no request and a nothing_to_synthesise diagnostic.
+
+Measured 5–11 September packet: 5 articles / 28 claim references.
+Original compact assembled packet: 8,958 UTF-8 bytes; projected input: 8,686.
+Instructions: 3,025 raw UTF-8 bytes. Within the project's JSON sizing convention:
+input contributes 9,240 bytes after escaping; instructions 3,061; schema/other
+scaffolding 1,209; total 13,510. This is not the literal SDK HTTP-body size.
+
+Recommended, not implemented or authorised: a separate 20,000-byte synthesis guard,
+allowing growth beyond the current measured input, with no chunking. Using the
+previous conservative pricing assumptions, (20,000 + 1,024) × $2.50/million +
+4,000 × $12/million reserves $0.10056 per call. A first live spike of exactly one
+call could use a $0.11 ceiling. Prices/limits must be reviewed before authorising
+live execution; these are reservations, not measured billing. Existing extraction
+guards and ledgers are unchanged.
+
+Proposed future command: `.venv/bin/python -B scripts/synthesise.py --live --limit 1`.
+It is intentionally NOT implemented/runnable yet. Current supported CLI is offline.
