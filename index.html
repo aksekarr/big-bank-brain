@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Big Bank Brain — institutional research, made legible." />
+    <title>Big Bank Brain — Institutional intelligence</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#briefing">Skip to briefing</a>
+    <header class="site-header">
+      <a class="wordmark" href="#top" aria-label="Big Bank Brain home">BIG BANK <em>BRAIN</em></a>
+      <nav aria-label="Primary navigation">
+        <a href="#briefing">Briefing</a>
+        <a href="#evidence">Evidence</a>
+        <a href="#method">How it works</a>
+      </nav>
+      <span class="header-mark" aria-hidden="true">●</span>
+    </header>
+
+    <main id="top">
+      <section class="hero" aria-labelledby="headline">
+        <p class="eyebrow">INSTITUTIONAL INTELLIGENCE / <span id="window-label">LATEST BRIEFING</span></p>
+        <h1 id="headline">Loading briefing…</h1>
+        <div class="hero-foot">
+          <p id="overview" class="dek"></p>
+          <div class="review-state" id="review-state" aria-live="polite"></div>
+        </div>
+        <div class="metrics" aria-label="Briefing coverage">
+          <div><strong id="publication-count">—</strong><span>publications</span></div>
+          <div><strong id="institution-count">—</strong><span>institutions</span></div>
+          <div><strong id="claim-count">—</strong><span>structured claims</span></div>
+        </div>
+      </section>
+
+      <section class="briefing-wrap" id="briefing" aria-labelledby="briefing-label">
+        <aside class="theme-nav" aria-label="Briefing themes">
+          <p id="briefing-label" class="eyebrow">THE BRIEFING</p>
+          <ol id="theme-links"></ol>
+        </aside>
+        <div id="themes" class="themes" aria-live="polite"></div>
+      </section>
+
+      <section class="evidence-intro" id="evidence" aria-labelledby="evidence-heading">
+        <p class="eyebrow">EVIDENCE, NOT JUST OUTPUT</p>
+        <h2 id="evidence-heading">Every briefing point traces back to a named institution and its published research.</h2>
+        <p>Open a point above to inspect the supporting structured claims and go straight to the original publisher page.</p>
+      </section>
+
+      <section class="method" id="method" aria-labelledby="method-heading">
+        <div class="method-heading">
+          <p class="eyebrow">HOW BIG BANK BRAIN WORKS</p>
+          <h2 id="method-heading">A deliberately bounded route from public research to a reviewable briefing.</h2>
+        </div>
+        <ol class="pipeline" aria-label="Research pipeline">
+          <li><span>01</span><strong>Public research</strong><p>Only approved, public institutional analysis enters the process.</p></li>
+          <li><span>02</span><strong>AI extraction</strong><p>Research is converted into discrete, attributable claims.</p></li>
+          <li><span>03</span><strong>Structured evidence</strong><p>Every claim retains its article and institution reference.</p></li>
+          <li><span>04</span><strong>AI synthesis</strong><p>The briefing groups supported evidence into an editorial read.</p></li>
+          <li><span>05</span><strong>Factual verification</strong><p>An independent guardrail checks support before review.</p></li>
+          <li><span>06</span><strong>Human review</strong><p>A person makes the final decision before anything is presented as reviewed.</p></li>
+        </ol>
+        <div class="credibility-grid">
+          <article><span class="cred-number" id="test-count">—</span><h3>Offline tests</h3><p>Repeatable checks protect the pipeline without live calls or paid requests.</p></article>
+          <article><span class="cred-number">4</span><h3>Source adapters</h3><p>Separate readers handle the approved institutions’ public research.</p></article>
+          <article><span class="cred-number">SHA-256</span><h3>Snapshot provenance</h3><p>Exact input and result snapshots can be identified, not merely described.</p></article>
+          <article><span class="cred-number">FAIL CLOSED</span><h3>Verification guardrail</h3><p>Invalid verification responses block progression instead of being waved through.</p></article>
+        </div>
+        <article class="case-study">
+          <p class="eyebrow">A SMALL BUT IMPORTANT TEST</p>
+          <h3>Words can smuggle in assumptions.</h3>
+          <p>In a controlled ABN AMRO evaluation, the phrase “Republican Senate” was changed to “Republicans retaining the Senate.” The earlier verifier missed the added implication that Republicans already held the Senate. A presupposition-aware verifier caught it, demonstrating why wording—not just topic overlap—matters when checking evidence.</p>
+        </article>
+      </section>
+    </main>
+
+    <footer>
+      <p><strong>Big Bank Brain</strong> is an independent project. It is not affiliated with any institution and is not investment advice.</p>
+      <p>Built by Avi Karr with an AI coding agent.</p>
+    </footer>
+
+    <dialog id="evidence-drawer" aria-labelledby="drawer-title">
+      <div class="drawer-top"><p class="eyebrow">POINT EVIDENCE</p><button class="close" type="button" aria-label="Close evidence panel">×</button></div>
+      <h2 id="drawer-title"></h2>
+      <div id="drawer-content"></div>
+    </dialog>
+    <template id="article-template">
+      <article class="source-card">
+        <div class="source-card-top"><p class="institution"></p><time></time></div>
+        <h3></h3>
+        <ul class="claim-list"></ul>
+        <a class="source-link" target="_blank" rel="noopener noreferrer">Read publisher source <span aria-hidden="true">↗</span></a>
+      </article>
+    </template>
+    <script src="site-config.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
