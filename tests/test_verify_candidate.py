@@ -216,7 +216,7 @@ class CandidateTests(unittest.TestCase):
         self.assertFalse((self.root/c.REVIEW_RESULT).exists())
 
     def test_safe_response_failure_diagnostics(self):
-        for kind in ('refusal','incomplete','invalid_json','validation_failed_unclassified',
+        for kind in ('refusal','incomplete','invalid_json','shape_text_validation',
                      'unexpected_internal_error'):
             with self.subTest(kind=kind):
                 (self.root/c.LEDGER).unlink(missing_ok=True)
@@ -229,7 +229,7 @@ class CandidateTests(unittest.TestCase):
                     response.status='incomplete'
                 elif kind=='invalid_json':
                     response.output[0].content[0].text='PRIVATE INVALID JSON'
-                elif kind=='validation_failed_unclassified':
+                elif kind=='shape_text_validation':
                     response.output[0].content[0].text='{"private":"PRIVATE OUTPUT"}'
                 self.client.responses.create.return_value=response
                 parser=c.verifier.parse_response
@@ -267,5 +267,5 @@ class CandidateTests(unittest.TestCase):
         with self.assertRaises(c.SafetyError):c.run(self.root,live=True,client=self.client)
         attempt=c.load_ledger(self.root)['attempts'][0]
         self.assertEqual(attempt['response_status'],'unknown')
-        self.assertEqual(attempt['diagnostic_code'],'validation_failed_unclassified')
+        self.assertEqual(attempt['diagnostic_code'],'response_envelope')
         self.assertNotIn('PRIVATE',(self.root/c.LEDGER).read_text())

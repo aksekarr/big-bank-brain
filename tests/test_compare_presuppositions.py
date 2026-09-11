@@ -13,6 +13,12 @@ import compare_presuppositions as c
 
 class ComparisonTests(unittest.TestCase):
     def setUp(self):
+        # Historical runners intentionally retain old production pins. Transport
+        # tests use a test-only identity for the instrumented, parity-tested module.
+        import hashlib
+        verifier_path=Path(__file__).resolve().parents[1]/'scripts/verify_presuppositions.py'
+        pin=patch.dict(c.CODE_HASHES, {'verify_presuppositions.py': hashlib.sha256(verifier_path.read_bytes()).hexdigest()})
+        pin.start();self.addCleanup(pin.stop)
         self.tmp=tempfile.TemporaryDirectory();self.addCleanup(self.tmp.cleanup)
         self.root=Path(self.tmp.name)
         self.client=Mock()

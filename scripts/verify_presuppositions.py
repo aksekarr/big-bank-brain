@@ -39,6 +39,20 @@ TARGET['properties']['presupposition_audit'] = {
 TARGET['required'].append('presupposition_audit')
 
 
+class ValidationStageError(ValueError):
+    """Diagnostic stage only; acceptance rules and legacy messages are unchanged."""
+    def __init__(self, stage, message):
+        super().__init__(message)
+        self.stage = stage
+
+
+def checked(stage, function, *args):
+    try:
+        return function(*args)
+    except ValueError as error:
+        raise ValidationStageError(stage, str(error)) from error
+
+
 def load_fixture(case):
     if case not in CASES:
         raise ValueError('Unknown synthetic case')
@@ -61,22 +75,22 @@ def request_payload(record):
 
 
 def validate(output, record):
-    base.synthesis.article.validate(output, SCHEMA)
+    checked('shape_text_validation', base.synthesis.article.validate, output, SCHEMA)
     normal = copy.deepcopy(output)
     for target in normal['targets']:
         del target['presupposition_audit']
-    base.validate(normal, record)
-    scopes = {t['target_ref']: set(t['references']) for t in base.build_input(record)['synthesis']['targets']}
+    checked('normal_validation', base.validate, normal, record)
+    scopes = {t['target_ref']: set(t['references']) for t in checked('revalidated_input', base.build_input, record)['synthesis']['targets']}
     for target in output['targets']:
         for audit in target['presupposition_audit']:
             refs = audit['references']
             if len(refs) != len(set(refs)) or not set(refs) <= scopes[target['target_ref']]:
-                raise ValueError('Invalid audit references')
+                raise ValidationStageError('audit_reference_scope', 'Invalid audit references')
             if audit['support_verdict'] == 'supported' and not refs:
-                raise ValueError('Supported audit requires evidence references')
+                raise ValidationStageError('audit_support_consistency', 'Supported audit requires evidence references')
             if audit['support_verdict'] == 'unsupported':
                 if target['verdict'] != 'fail' or not any(i['type'] == 'unsupported_statement' for i in target['issues']):
-                    raise ValueError('Unsupported audit requires normal failure issue')
+                    raise ValidationStageError('audit_support_consistency', 'Unsupported audit requires normal failure issue')
     return output
 
 
@@ -84,22 +98,24 @@ def parse_response(response, record):
     # Follow the small production envelope pattern; validation below delegates
     # normal target/issue checks to production without patching its globals.
     if getattr(response, 'status', None) != 'completed' or getattr(response, 'error', None):
-        raise ValueError('Incomplete response')
+        raise ValidationStageError('response_envelope', 'Incomplete response')
     texts = []
     for part in response.output:
         if part.type == 'reasoning':
             continue
         if part.type != 'message' or getattr(part, 'status', None) != 'completed':
-            raise ValueError('Unexpected response')
+            raise ValidationStageError('response_envelope', 'Unexpected response')
         for content in part.content:
             if content.type != 'output_text':
-                raise ValueError('Refusal or unexpected content')
+                raise ValidationStageError('response_envelope', 'Refusal or unexpected content')
             texts.append(content.text)
     if len(texts) != 1:
-        raise ValueError('Expected one response')
+        raise ValidationStageError('response_envelope', 'Expected one response')
     def invalid(_):
-        raise ValueError('Invalid JSON constant')
-    return validate(json.loads(texts[0], object_pairs_hook=base.dedupe.object_pairs,
+        raise ValidationStageError('json_value_validation', 'Invalid JSON constant')
+    def pairs(values):
+        return checked('json_value_validation', base.dedupe.object_pairs, values)
+    return validate(json.loads(texts[0], object_pairs_hook=pairs,
                                parse_constant=invalid), record)
 
 

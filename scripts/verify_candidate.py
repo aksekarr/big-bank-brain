@@ -114,7 +114,12 @@ def response_diagnostic(response, error):
                     return 'refusal'
     if isinstance(error, json.JSONDecodeError):
         return 'invalid_json'
-    # ValueError/SpikeError do not expose separate schema/reference/audit codes.
+    if isinstance(error, verifier.ValidationStageError) and error.stage in {
+            'response_envelope', 'shape_text_validation', 'normal_validation',
+            'revalidated_input', 'audit_reference_scope', 'audit_support_consistency',
+            'json_value_validation'}:
+        return error.stage
+    # Untyped ValueError remains deliberately unclassified.
     return 'validation_failed_unclassified'
 
 
