@@ -1,5 +1,7 @@
 # Big Bank Brain: working instructions for Codex
 
+> **Live-run and backend freeze:** See the non-negotiable rule in **Commands and verification**. Do not run live scripts or modify generated briefing data without Avi's specific approval for that run in that task.
+
 Big Bank Brain is a static website with a daily AI-written digest of high-quality
 public institutional financial analysis. It groups themes, attributes views and links
 to originals. It is a CV portfolio project for non-technical hiring managers, often
@@ -61,9 +63,14 @@ this section or to validate a documentation-only change.
   check cannot run, say why and do not call it a pass.
 - For documentation-only tasks, inspect the text and diff, verify the requested scope
   and unchanged material, and report that validation rather than an application test.
-- Use fixtures and a verified offline dry-run path for development. Tests must not
-  silently make network requests or paid calls. Do not run the live pipeline or make
-  live paid API/model/search calls without Avi's approval for that run or task.
+- **NON-NEGOTIABLE: backend frozen and live runs prohibited by default.** Use fixtures
+  and a verified offline dry-run path for development. Tests must not silently make
+  network requests or paid calls. Never run `scripts/interpret_briefing.py`,
+  `scripts/synthesise.py`, `scripts/verify_synthesis.py`, or any other script with a
+  `--live` flag under any circumstances unless Avi has explicitly asked for that
+  specific run in that specific task. `synthesis-result.json`, `interpretation.json`
+  and `corrections.json` must never be modified or regenerated. A layout, styling or
+  markup task never requires running any Python script.
 - Required behaviour tests as those components are implemented: deduplication, budget
   cap enforcement, citation integrity, robots handling, blocked-source handling and
   preserving the last good digest on failure. Test the agreed behaviour; these test
