@@ -105,6 +105,11 @@ footer { display:block; padding:0; background:var(--ink); }
   .process-step { flex:0 0 auto; display:grid; grid-template-columns:1fr; gap:1px; min-width:auto; padding:0; border:0; }
   .process-step strong,.review-step strong { font-size:18px; }
   .process-step span { font-size:9px; white-space:nowrap; }
-  .process-arrow { display:inline; flex:0 0 auto; }
-  .run-meta { display:block; flex:0 0 auto; margin:0 0 0 4px; padding:0; white-space:nowrap; }
+  .guardrail { order:1; }
+  .review-step { order:2; }
+  .process-step:nth-child(1) { order:3; }
+  .process-step:nth-child(3) { order:4; }
+  .process-step:nth-child(5) { order:5; }
+  .process-arrow { display:none; }
+  .run-meta { display:block; order:6; flex:0 0 auto; margin:0 0 0 4px; padding:0; white-space:nowrap; }
 }
