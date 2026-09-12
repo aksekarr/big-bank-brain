@@ -113,8 +113,9 @@ function loadInterpretation(themeSections, corrections) {
         if (!section || typeof read.takeaway !== 'string' || typeof read.read !== 'string') return;
         const takeaway = applyCorrections(read.takeaway, `theme-${index + 1}-takeaway`, corrections);
         const interpretationRead = applyCorrections(read.read, `theme-${index + 1}-read`, corrections);
+        const interpretationChanged = takeaway.changed || interpretationRead.changed;
         const panel = document.createElement('section'); panel.className = 'interpretation theme-interpretation';
-        panel.innerHTML = `<p class="eyebrow">BBB'S READ</p><h3 class="takeaway">${escapeHtml(takeaway.text)}${takeaway.changed ? correctionMarker() : ''}</h3><p class="interpretation-copy">${escapeHtml(interpretationRead.text)}${interpretationRead.changed ? correctionMarker() : ''}</p>`;
+        panel.innerHTML = `<p class="eyebrow">BBB'S READ</p><h3 class="takeaway">${escapeHtml(takeaway.text)}</h3><p class="interpretation-copy">${escapeHtml(interpretationRead.text)}</p>${interpretationChanged ? correctionMarker() : ''}`;
         section.querySelector('.theme-title').insertAdjacentElement('afterend', panel);
       });
     })
