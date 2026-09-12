@@ -19,6 +19,19 @@
     </header>
 
     <main id="top">
+      <section class="process-strip" aria-label="Briefing process">
+        <div class="process-step"><strong id="publication-count">—</strong><span>publications read</span></div>
+        <span class="process-arrow" aria-hidden="true">→</span>
+        <div class="process-step"><strong id="claim-count">—</strong><span>claims extracted</span></div>
+        <span class="process-arrow" aria-hidden="true">→</span>
+        <div class="process-step"><strong id="theme-count">—</strong><span>themes synthesised</span></div>
+        <span class="process-arrow" aria-hidden="true">→</span>
+        <div class="process-step guardrail"><strong>Held</strong><span>auto-verification</span></div>
+        <span class="process-arrow" aria-hidden="true">→</span>
+        <div class="process-step review-step" id="review-state" aria-live="polite"></div>
+        <p class="run-meta" id="run-meta"></p>
+      </section>
+
       <section class="hero" aria-labelledby="headline">
         <figure class="hero-illustration">
           <img src="assets/bbb-hero.jpg" alt="Illustration of a bank building with a coral brain beneath its lifted roof." />
@@ -35,19 +48,6 @@
           <p id="coverage-title" class="eyebrow">THIS BRIEFING COVERS</p>
           <div id="coverage-list"></div>
         </aside>
-      </section>
-
-      <section class="process-strip" aria-label="Briefing process">
-        <div class="process-step"><strong id="publication-count">—</strong><span>publications read</span></div>
-        <span class="process-arrow" aria-hidden="true">→</span>
-        <div class="process-step"><strong id="claim-count">—</strong><span>claims extracted</span></div>
-        <span class="process-arrow" aria-hidden="true">→</span>
-        <div class="process-step"><strong id="theme-count">—</strong><span>themes synthesised</span></div>
-        <span class="process-arrow" aria-hidden="true">→</span>
-        <div class="process-step guardrail"><strong>Held</strong><span>auto-verification</span></div>
-        <span class="process-arrow" aria-hidden="true">→</span>
-        <div class="process-step review-step" id="review-state" aria-live="polite"></div>
-        <p class="run-meta" id="run-meta"></p>
       </section>
 
       <section class="briefing-wrap" id="briefing" aria-labelledby="briefing-label">

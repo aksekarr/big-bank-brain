@@ -98,3 +98,15 @@ footer { display:block; padding:0; background:var(--ink); }
   .hero-illustration img { -webkit-mask-image:none; mask-image:none; }
   .footer-illustration { margin-top:24px; }
 }
+
+/* Terminal-style briefing ticker */
+.process-strip { padding-top:10px; padding-bottom:10px; }
+@media (max-width:760px) {
+  .process-strip { display:flex; align-items:center; gap:13px; overflow-x:auto; padding:9px 20px; scrollbar-width:none; -ms-overflow-style:none; }
+  .process-strip::-webkit-scrollbar { display:none; }
+  .process-step { flex:0 0 auto; display:grid; grid-template-columns:1fr; gap:1px; min-width:auto; padding:0; border:0; }
+  .process-step strong,.review-step strong { font-size:18px; }
+  .process-step span { font-size:9px; white-space:nowrap; }
+  .process-arrow { display:inline; flex:0 0 auto; }
+  .run-meta { display:block; flex:0 0 auto; margin:0 0 0 4px; padding:0; white-space:nowrap; }
+}
