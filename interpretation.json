@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "source_synthesis_sha256": "1861b8c3b3852f8b890eb01ae8a7ae731d1dd4429cdcd4640fe98e97caabe9af",
+  "request_bytes": 10317,
+  "request_cap": 20000,
+  "reserved_micro_usd_per_call": 100560,
+  "max_attempts": 2,
+  "estimated_max_micro_usd": 201120,
+  "model": "gpt-5.6-terra",
+  "reasoning": "low",
+  "generated_at": "2026-09-11T19:01:00.172259+00:00",
+  "bottom_line": "Energy prices are the key near-term swing factor for inflation and rates: they could delay easing where price pressures stay high.",
+  "themes": [
+    {
+      "theme_id": "t1",
+      "takeaway": "Energy can keep rates higher.",
+      "read": "BBVA Research sees further ECB tightening risk if conflict and energy shocks persist. Its expected Turkish rate cut is only if oil is below $90.",
+      "claim_ids": [
+        "a2:c3",
+        "a2:c5",
+        "a2:c6",
+        "a3:c2",
+        "a3:c4"
+      ]
+    },
+    {
+      "theme_id": "t2",
+      "takeaway": "Uncertain payments raise banks’ cash buffers.",
+      "read": "The BIS finds volatile payment flows raise excess reserves; better interbank activity lowers them for active banks.",
+      "claim_ids": [
+        "a6:c1",
+        "a6:c2",
+        "a6:c3",
+        "a6:c5"
+      ]
+    },
+    {
+      "theme_id": "t3",
+      "takeaway": "AI can speed both attacks and defence.",
+      "read": "The BIS says frontier AI can shorten cyber attacks and improve detection, making rapid software updates and recovery capability more important.",
+      "claim_ids": [
+        "a4:c1",
+        "a4:c2",
+        "a4:c3",
+        "a4:c6"
+      ]
+    },
+    {
+      "theme_id": "t4",
+      "takeaway": "Election outcomes may alter policy speed.",
+      "read": "ABN AMRO does not expect congressional outcomes to materially change the US economic path, though fiscal expansion would vary by control.",
+      "claim_ids": [
+        "a5:c3",
+        "a5:c5",
+        "a5:c6"
+      ]
+    }
+  ]
+}

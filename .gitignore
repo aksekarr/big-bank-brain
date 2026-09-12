@@ -42,9 +42,11 @@ __pycache__/
 /nyfed-lse-ai-spike-ledger.json
 /nyfed-lse-ai-extractions.json
 
-# Local synthesis spike output and independent call allowance
+# Local synthesis spike accounting
 /synthesis-spike-ledger.json
-/synthesis-result.json
+
+# NOTE: synthesis-result.json, interpretation.json and corrections.json are
+# PRODUCT DATA fetched by app.js at runtime. They must stay tracked.
 
 # Independent semantic-verification spike runtime state
 /verification-spike-ledger.json
@@ -88,3 +90,6 @@ __pycache__/
 
 # Canonical manual synthesis accounting (historical spike stays separate)
 /candidate-synthesis-ledger.json
+
+# Interpretation call accounting (runtime ledger, not product)
+/interpretation-ledger.json
