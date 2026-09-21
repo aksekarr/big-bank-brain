@@ -38,7 +38,7 @@ def select(root=ROOT, now=None, limit=3, *, url=None):
         eligible = [item for item in eligible if item['url'] == url]
         if not eligible:
             raise ValueError('Requested Liberty Street URL is not eligible and unprocessed')
-    return sorted(eligible, key=lambda i: i['publication_date'], reverse=True)[:limit]
+    return sorted(eligible, key=lambda i: (-processing.publication_date(i).toordinal(), i['url']))[:limit]
 
 
 def fetch(url):

@@ -219,16 +219,67 @@ class ExtractionTests(unittest.TestCase):
         self.assertEqual(len(ai.load_ledger(self.root)['attempts']), 1)
         self.assertEqual(ai.MAX_CALLS, 3)
 
+    def test_exact_url_selects_only_the_requested_eligible_article_and_marks_it_processed(self):
+        path = self.root / 'bbva-discovery.json'
+        snapshot = ai.dedupe.read_json(path)
+        original = snapshot['items'][0]
+        snapshot['items'] = [dict(original, url=original['url']+suffix+'/') for suffix in ['a', 'z']]
+        snapshot['item_count'] = 2
+        path.write_text(json.dumps(snapshot))
+        target = snapshot['items'][1]['url']
+        self.assertNotEqual(ai.select(self.root, NOW, 1)[0]['url'], target)
+        with patch.object(ai.read_bbva, 'fetch', side_effect=[ROBOTS, (HTML, 'text/html')]) as fetch, patch.object(ai.read_bbva.time, 'sleep'):
+            ai.run_spike(self.client, self.root, NOW, url=target)
+        self.assertEqual(fetch.call_args.args[0], target)
+        self.assertEqual(set(ai.processing.load_processed(self.root)), {target})
+        self.assertEqual(set(ai.dedupe.read_json(self.root/ai.RESULTS)['items']), {target})
+        with patch.object(ai.read_bbva, 'fetch') as fetch, self.assertRaises(ai.SpikeError):
+            ai.run_spike(self.client, self.root, NOW, url=target)
+        fetch.assert_not_called()
+
+    def test_exact_url_cannot_bypass_eligibility(self):
+        path = self.root / 'bbva-discovery.json'
+        snapshot = ai.dedupe.read_json(path)
+        target = snapshot['items'][0]['url']
+        for publication_date in ['2026-09-01', '2026-09-12', None]:
+            snapshot['items'][0]['publication_date'] = publication_date
+            path.write_text(json.dumps(snapshot))
+            with self.subTest(publication_date=publication_date), self.assertRaises(ai.SpikeError):
+                ai.select(self.root, NOW, 1, url=target)
+        for url in ['https://example.com/unknown', target+'-missing']:
+            with self.assertRaises(ai.SpikeError):
+                ai.select(self.root, NOW, 1, url=url)
+        self.assertFalse((self.root/ai.LEDGER).exists())
+
+    def test_selection_breaks_same_date_ties_by_url_ascending(self):
+        path = self.root / 'bbva-discovery.json'
+        snapshot = ai.dedupe.read_json(path)
+        original = snapshot['items'][0]
+        snapshot['items'] = [dict(original, url=original['url']+suffix+'/') for suffix in ['z', 'a']]
+        snapshot['item_count'] = 2
+        path.write_text(json.dumps(snapshot))
+        self.assertEqual([item['url'] for item in ai.select(self.root, NOW, 2)],
+                         [snapshot['items'][1]['url'], snapshot['items'][0]['url']])
+
     def test_cli_limit_one_is_forwarded_without_real_requests(self):
         client = Mock()
         client.__enter__ = Mock(return_value=self.client)
         client.__exit__ = Mock(return_value=False)
         with patch.object(ai, 'make_client', return_value=client), patch.object(ai, 'run_spike', return_value=[]) as run, contextlib.redirect_stdout(io.StringIO()):
             self.assertEqual(ai.main(['--live', '--limit', '1']), 0)
-        run.assert_called_once_with(self.client, limit=1)
+        run.assert_called_once_with(self.client, limit=1, url=None)
         for invalid in ['0', '4']:
             with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
                 ai.main(['--limit', invalid])
+
+    def test_cli_forwards_exact_url(self):
+        client = Mock()
+        client.__enter__ = Mock(return_value=self.client)
+        client.__exit__ = Mock(return_value=False)
+        target = 'https://www.bbvaresearch.com/en/publicaciones/invented/'
+        with patch.object(ai, 'make_client', return_value=client), patch.object(ai, 'run_spike', return_value=[]) as run, contextlib.redirect_stdout(io.StringIO()):
+            self.assertEqual(ai.main(['--live', '--limit', '1', '--url', target]), 0)
+        run.assert_called_once_with(self.client, limit=1, url=target)
 
     def test_metadata_only_default_never_fetches_or_creates_client(self):
         ready = {'items': ai.select(self.root, NOW, 3)}

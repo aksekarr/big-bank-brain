@@ -160,12 +160,19 @@ def held_calls(ledger):
     return sum(a.get('outcome', 'pending') != 'rejected' for a in ledger['attempts'])
 
 
-def select(root, now, limit):
+def select_ready(ready, limit, *, url=None):
     if limit not in (1, 2, 3):
         raise SpikeError('Select one, two or three articles')
-    ready = processing.prepare(root, now)
-    return sorted((i for i in ready['items'] if i['source_name'] == 'BBVA Research'),
-                  key=lambda i: i['publication_date'], reverse=True)[:limit]
+    eligible = [i for i in ready['items'] if i['source_name'] == 'BBVA Research']
+    if url is not None:
+        eligible = [item for item in eligible if item['url'] == url]
+        if not eligible:
+            raise SpikeError('Requested BBVA URL is not eligible and unprocessed')
+    return sorted(eligible, key=lambda i: (-processing.publication_date(i).toordinal(), i['url']))[:limit]
+
+
+def select(root, now, limit, *, url=None):
+    return select_ready(processing.prepare(root, now), limit, url=url)
 
 
 def extract_one(client, item, source_text, root, now, ledger, *,
@@ -201,13 +208,13 @@ def extract_one(client, item, source_text, root, now, ledger, *,
     return parse_response(response, source_text)
 
 
-def run_spike(client, root=processing.ROOT, now=None, limit=3):
+def run_spike(client, root=processing.ROOT, now=None, limit=3, url=None):
     now = now or datetime.now(timezone.utc)
     descriptor = os.open(root, os.O_RDONLY)
     try:
         fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
         ledger = load_ledger(root)
-        selected = select(root, now, limit)
+        selected = select(root, now, limit, url=url)
         if not selected:
             return []
         if held_calls(ledger) >= MAX_CALLS:
@@ -254,18 +261,18 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--live', action='store_true', help='Paid requests: run only after Avi approval')
     parser.add_argument('--limit', type=int, choices=[1, 2, 3], default=3)
+    parser.add_argument('--url', help='Exact discovery URL; must be eligible and unprocessed')
     args = parser.parse_args(argv)
     try:
         if args.live:
             with make_client() as client:
-                diagnostics = run_spike(client, limit=args.limit)
+                diagnostics = run_spike(client, limit=args.limit, url=args.url)
             print(json.dumps(diagnostics, ensure_ascii=False, indent=2))
             return 0 if all(i['extraction_success'] for i in diagnostics) else 1
         # Safe default: metadata only. No dependency, key, publisher or API request.
         now = datetime.now(timezone.utc)
         ready = processing.execute('prepare', now=now)
-        selected = sorted((i for i in ready['items'] if i['source_name'] == 'BBVA Research'),
-                          key=lambda i: i['publication_date'], reverse=True)[:args.limit]
+        selected = select_ready(ready, args.limit, url=args.url)
         print(json.dumps({'mode': 'offline_plan', 'model': MODEL, 'reasoning': REASONING,
                           'max_output_tokens': MAX_OUTPUT_TOKENS, 'max_calls_total': MAX_CALLS,
                           'max_request_bytes': MAX_REQUEST_BYTES,

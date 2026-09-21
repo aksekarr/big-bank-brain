@@ -92,6 +92,19 @@ class BisReadTests(unittest.TestCase):
             read.processing.write_json({'version':1,'processed':{items[0]['url']:NOW.isoformat()}},root/read.processing.STATE_NAME)
             self.assertEqual(read.select(root,NOW,1),[])
 
+    def test_selection_breaks_same_date_ties_by_url_ascending(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            seed(root)
+            path = root/'bis-discovery.json'
+            snapshot = json.loads(path.read_text())
+            original = snapshot['items'][0]
+            snapshot['items'] = [dict(original, url=original['url']+suffix) for suffix in ['z', 'a']]
+            snapshot['item_count'] = 2
+            path.write_text(json.dumps(snapshot))
+            self.assertEqual([item['url'] for item in read.select(root, NOW, 2)],
+                             [snapshot['items'][1]['url'], snapshot['items'][0]['url']])
+
 
 if __name__ == '__main__':
     unittest.main()
