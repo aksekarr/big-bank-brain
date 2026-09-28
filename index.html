@@ -17,6 +17,14 @@
     <meta name="twitter:image" content="https://aksekarr.github.io/big-bank-brain/assets/bbb-hero.png" />
     <title>Big Bank Brain — Institutional intelligence</title>
     <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="art-direction.css" />
+    <script>
+      /* Motion guard: hide-then-reveal only when motion.js actually runs; otherwise show everything. */
+      if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches && 'IntersectionObserver' in window) {
+        document.documentElement.classList.add('js-motion');
+        setTimeout(function () { if (!window.BBB_MOTION) document.documentElement.classList.remove('js-motion'); }, 3000);
+      }
+    </script>
   </head>
   <body>
     <a class="skip-link" href="#briefing">Skip to briefing</a>
@@ -30,35 +38,39 @@
     </header>
 
     <main id="top">
-      <section class="process-strip" aria-label="Briefing process">
-        <div class="process-step"><strong id="publication-count">—</strong><span>publications read</span></div>
-        <span class="process-arrow" aria-hidden="true">→</span>
-        <div class="process-step"><strong id="claim-count">—</strong><span>claims extracted</span></div>
-        <span class="process-arrow" aria-hidden="true">→</span>
-        <div class="process-step"><strong id="theme-count">—</strong><span>themes synthesised</span></div>
-        <span class="process-arrow" aria-hidden="true">→</span>
-        <div class="process-step guardrail"><strong>Held</strong><span>auto-verification</span></div>
-        <span class="process-arrow" aria-hidden="true">→</span>
-        <div class="process-step review-step" id="review-state" aria-live="polite"></div>
-        <p class="run-meta" id="run-meta"></p>
+      <section class="arrival" aria-labelledby="headline">
+        <div class="arrival-inner">
+          <section class="ticker" aria-label="Briefing process">
+            <div class="ticker-step"><strong id="publication-count" class="ticker-num">—</strong><span>publications read</span></div>
+            <span class="ticker-arrow" aria-hidden="true"></span>
+            <div class="ticker-step"><strong id="claim-count" class="ticker-num">—</strong><span>claims extracted</span></div>
+            <span class="ticker-arrow" aria-hidden="true"></span>
+            <div class="ticker-step"><strong id="theme-count" class="ticker-num">—</strong><span>themes synthesised</span></div>
+            <span class="ticker-arrow" aria-hidden="true"></span>
+            <div class="ticker-step ticker-held"><strong>Held</strong><span>auto-verification</span></div>
+            <span class="ticker-arrow" aria-hidden="true"></span>
+            <div class="ticker-step ticker-review" id="review-state" aria-live="polite"></div>
+            <p class="run-meta" id="run-meta"></p>
+          </section>
+          <div class="arrival-copy">
+            <p class="eyebrow">AI-GENERATED BRIEFING / <span id="window-label">LATEST BRIEFING</span></p>
+            <p id="interpretation-legend" class="interpretation-legend" hidden>BBB’s read · AI interpretation, not the institutions’ view</p>
+            <p id="bottom-line" class="bottom-line" aria-live="polite"></p>
+            <h1 id="headline" class="synthesis-headline">Loading briefing…</h1>
+            <p class="ai-explainer">An AI pipeline reads the latest public research from major financial institutions, extracts every claim, and writes this briefing—with each point traceable to its source.</p>
+            <details class="full-overview"><summary>Full overview</summary><p id="overview" class="dek"></p></details>
+          </div>
+          <figure class="arrival-art">
+            <img src="assets/bbb-hero.png" alt="Illustration of a bank building with a coral brain beneath its lifted roof." />
+          </figure>
+        </div>
       </section>
 
-      <section class="hero" aria-labelledby="headline">
-        <figure class="hero-illustration">
-          <img src="assets/bbb-hero.png" alt="Illustration of a bank building with a coral brain beneath its lifted roof." />
-        </figure>
-        <div class="hero-main">
-          <p class="eyebrow">AI-GENERATED BRIEFING / <span id="window-label">LATEST BRIEFING</span></p>
-          <p class="ai-explainer">An AI pipeline reads the latest public research from major financial institutions, extracts every claim, and writes this briefing—with each point traceable to its source.</p>
-          <p id="interpretation-legend" class="interpretation-legend" hidden>BBB’s read · AI interpretation, not the institutions’ view</p>
-          <p id="bottom-line" class="bottom-line" aria-live="polite"></p>
-          <h1 id="headline" class="synthesis-headline">Loading briefing…</h1>
-          <details class="full-overview"><summary>Full overview</summary><p id="overview" class="dek"></p></details>
-        </div>
-        <aside class="coverage-panel" aria-labelledby="coverage-title">
+      <section class="coverage-band" aria-labelledby="coverage-title">
+        <div class="coverage">
           <p id="coverage-title" class="eyebrow">THIS BRIEFING COVERS</p>
           <div id="coverage-list"></div>
-        </aside>
+        </div>
       </section>
 
       <section class="briefing-wrap" id="briefing" aria-labelledby="briefing-label">
@@ -96,6 +108,9 @@
           <article><span class="cred-number">SHA-256</span><h3>Snapshot provenance</h3><p>Every briefing is fingerprinted, so it can be traced to the exact research it came from.</p></article>
           <article><span class="cred-number">FAIL CLOSED</span><h3>Verification guardrail</h3><p>If the checker can’t validate a briefing, it’s held back, not waved through.</p></article>
         </div>
+      </section>
+
+      <section class="case-band" aria-label="Verifier test case">
         <article class="case-study">
           <p class="eyebrow">A SMALL BUT IMPORTANT TEST</p>
           <h3>Words can smuggle in assumptions.</h3>
@@ -125,5 +140,6 @@
     </template>
     <script src="site-config.js"></script>
     <script src="app.js"></script>
+    <script src="motion.js"></script>
   </body>
 </html>
