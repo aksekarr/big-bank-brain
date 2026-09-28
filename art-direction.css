@@ -71,6 +71,8 @@ body { overflow-x: hidden; }
 .ticker-held strong { color: var(--mustard); font-style: italic; }
 .ticker-review strong { color: var(--sky); font: 400 clamp(38px, 4.3vw, 70px)/.84 var(--serif); letter-spacing: -.025em; }
 .ticker-review .status-dot { display: none; }
+/* Held and Reviewed are words, not numerals: set smaller so the counts lead */
+.ticker-held strong, .ticker-review strong { font-size: clamp(30px, 3.2vw, 52px); }
 .ticker-arrow {
   align-self: center;
   width: clamp(18px, 2.4vw, 44px);
