@@ -156,8 +156,12 @@ body { overflow-x: hidden; }
   background: var(--paper);
   /* plate shadow + a second, offset coral-rimmed plane behind it */
   box-shadow: 16px 16px 0 -1px var(--ink), 16px 16px 0 0 #f2765eb3, 0 40px 80px -30px #000a;
-  transform: translate3d(0, var(--py, 0px), 0);
-  will-change: transform;
+}
+/* Desktop: the plate stays beside the text while the dark section scrolls,
+   so the art column never runs out before the copy does. Only on windows
+   tall enough that the pinned plate can't cover the headline or clip. */
+@media (min-width: 761px) and (min-height: 620px) {
+  .arrival-art { position: sticky; top: 104px; }
 }
 .arrival-art img {
   display: block;
@@ -363,7 +367,6 @@ body { overflow-x: hidden; }
   }
   .js-motion .ticker-arrow, .js-motion .ticker-held strong { transform: none !important;
   }
-  .arrival-art { transform: none !important; }
   .theme, .theme::before, .credibility-grid article { transition: none !important; }
 }
 

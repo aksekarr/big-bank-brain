@@ -128,17 +128,4 @@
   watchChildren($('#coverage-list'), (kids) => reveal(kids));
   watchChildren($('#themes'), (kids) => { reveal(kids, false); kids.forEach((k) => spy.observe(k)); });
 
-  /* ---------- Gentle depth on scroll: the hero plate lags the page slightly ---------- */
-  let ticking = false;
-  function onScroll() {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(() => {
-      const y = window.scrollY;
-      if (y < window.innerHeight * 1.5) art.style.setProperty('--py', `${Math.round(y * 0.07)}px`);
-      ticking = false;
-    });
-  }
-  window.addEventListener('scroll', onScroll, { passive: true });
-  onScroll();
 })();
