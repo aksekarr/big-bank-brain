@@ -35,8 +35,8 @@ def run_spike(client, root=processing.ROOT, now=None, limit=1, url=None):
         items = read.select(root, now, limit, url=url)
         if not items:
             return []
-        if ai.held_calls(ledger) >= ai.MAX_CALLS:
-            raise ai.SpikeError('ABN three-call allowance exhausted; review required')
+        if ai.held_calls_in_window(ledger, now) >= ai.MAX_CALLS:
+            raise ai.SpikeError('ABN weekly three-call allowance exhausted; review required')
         path = root / RESULTS
         saved = ai.dedupe.read_json(path) if path.exists() else {'version': 1, 'items': {}}
         if not isinstance(saved, dict) or saved.get('version') != 1 or not isinstance(saved.get('items'), dict):
@@ -83,7 +83,7 @@ def main(argv=None):
         items = read.select(limit=1, url=args.url)
         ledger = load_ledger(processing.ROOT)
         print(json.dumps({'mode': 'offline_plan', 'model': ai.MODEL,
-                          'remaining_calls': ai.MAX_CALLS-ai.held_calls(ledger),
+                          'remaining_calls': ai.MAX_CALLS-ai.held_calls_in_window(ledger),
                           'selected': [{k: i[k] for k in ['title', 'url', 'publication_date']}
                                        for i in items]}, ensure_ascii=False, indent=2))
         return 0

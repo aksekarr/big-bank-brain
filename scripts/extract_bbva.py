@@ -6,7 +6,7 @@ import logging
 import os
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 
 import dedupe
 import processing
@@ -15,6 +15,9 @@ import read_bbva
 MODEL = 'gpt-5.6-terra'
 REASONING = 'low'
 MAX_CALLS = 3
+# Extraction allowance renews on the same rolling seven-day window the briefing
+# uses, so a weekly product is not capped by a one-off R&D spike allowance.
+CALL_WINDOW_DAYS = 7
 MAX_OUTPUT_TOKENS = 2000
 MAX_REQUEST_BYTES = 8000
 # Conservative reservation: <=8,000 serialized UTF-8 bytes + 1,024 framing allowance,
@@ -150,14 +153,31 @@ def load_ledger(root, *, ledger_name=LEDGER, reserve_micro_usd=RESERVE_MICRO_USD
         if outcome == 'rejected' and (type(attempt.get('http_status')) is not int
                                       or attempt['http_status'] not in {401, 429}):
             raise SpikeError('Invalid released reservation')
-    if held_calls(data) > MAX_CALLS:
-        raise SpikeError('Call ledger exceeds spike limit')
+    if held_calls_in_window(data) > MAX_CALLS:
+        raise SpikeError('Call ledger exceeds the weekly allowance')
     return data
 
 
 def held_calls(ledger):
     # Unknown outcomes retain capacity so a timeout/crash cannot enable a fourth call.
     return sum(a.get('outcome', 'pending') != 'rejected' for a in ledger['attempts'])
+
+
+def held_calls_in_window(ledger, now=None, *, window_days=CALL_WINDOW_DAYS):
+    # Current-window count. Ledger history is never deleted or rewritten; attempts
+    # older than the window simply stop counting toward the current allowance, so
+    # each weekly briefing gets its own capacity. Unknown outcomes still retain
+    # capacity, and released 401/429 rejections still do not consume it.
+    now = now or datetime.now(timezone.utc)
+    cutoff = now - timedelta(days=window_days)
+    held = 0
+    for attempt in ledger['attempts']:
+        if attempt.get('outcome', 'pending') == 'rejected':
+            continue
+        reserved = datetime.fromisoformat(attempt['reserved_at'].replace('Z', '+00:00'))
+        if reserved > cutoff:
+            held += 1
+    return held
 
 
 def select_ready(ready, limit, *, url=None):
@@ -180,8 +200,9 @@ def extract_one(client, item, source_text, root, now, ledger, *,
                 max_request_bytes=MAX_REQUEST_BYTES, reserve_micro_usd=RESERVE_MICRO_USD,
                 budget_micro_usd=BUDGET_MICRO_USD):
     payload = request_payload(item, source_text, instructions=instructions, max_request_bytes=max_request_bytes)
-    if held_calls(ledger) >= MAX_CALLS or (held_calls(ledger)+1)*reserve_micro_usd > budget_micro_usd:
-        raise SpikeError('Three-call or spike budget limit reached; review required')
+    held = held_calls_in_window(ledger, now)
+    if held >= MAX_CALLS or (held+1)*reserve_micro_usd > budget_micro_usd:
+        raise SpikeError('Weekly three-call or budget limit reached; review required')
     # Persist before sending; release only a definite 401/429 rejection without a result.
     attempt = {'url': item['url'], 'reserved_at': now.isoformat(),
                'reserved_micro_usd': reserve_micro_usd, 'outcome': 'pending'}
@@ -217,8 +238,8 @@ def run_spike(client, root=processing.ROOT, now=None, limit=3, url=None):
         selected = select(root, now, limit, url=url)
         if not selected:
             return []
-        if held_calls(ledger) >= MAX_CALLS:
-            raise SpikeError('Three-call spike allowance exhausted; review required')
+        if held_calls_in_window(ledger, now) >= MAX_CALLS:
+            raise SpikeError('Weekly three-call allowance exhausted; review required')
         results_path = root / RESULTS
         saved = dedupe.read_json(results_path) if results_path.exists() else {'version': 1, 'items': {}}
         if not isinstance(saved, dict) or saved.get('version') != 1 or not isinstance(saved.get('items'), dict):
@@ -276,7 +297,7 @@ def main(argv=None):
         print(json.dumps({'mode': 'offline_plan', 'model': MODEL, 'reasoning': REASONING,
                           'max_output_tokens': MAX_OUTPUT_TOKENS, 'max_calls_total': MAX_CALLS,
                           'max_request_bytes': MAX_REQUEST_BYTES,
-                          'remaining_calls': MAX_CALLS-held_calls(load_ledger(processing.ROOT)),
+                          'remaining_calls': MAX_CALLS-held_calls_in_window(load_ledger(processing.ROOT), now),
                           'selected': [{k: i[k] for k in ['title', 'url', 'publication_date']} for i in selected]}, indent=2))
         return 0
     except SpikeError as error:

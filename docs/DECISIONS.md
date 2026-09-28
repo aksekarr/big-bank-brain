@@ -44,6 +44,7 @@ Confirmed only when Avi signs off.
 | 2026-09-11 | Future canonical synthesis successes record SHA-256 of exact stored result bytes in their attempt; do not backfill historical attempts | Enable later result-integrity checks without changing synthesis content or semantics |
 | 2026-09-11 | Interpretation may be deliberately rerun against an unchanged synthesis snapshot; retain every attempt in its separate ledger and preserve the last valid result until replacement | Interpretation is an optional presentation layer, so iterative prompt refinement must not be blocked by canonical synthesis snapshot rules |
 | 2026-09-11 | Human spot-check: independent model compared all claims and AI text to sources; Avi reviewed the flags; 14 corrections applied via corrections layer | Keep the stored research and AI output intact while presenting reviewed corrections transparently |
+| 2026-09-28 | Extraction call allowance renews on the rolling seven-day window rather than being a lifetime cap; ledger history is never deleted or rewritten, and the lifetime counter stays unchanged for the frozen historical runners | The three-call cap was an R&D spike allowance. As a lifetime limit it made a second weekly briefing impossible, which was a phase mismatch rather than a budget decision. Scoping the count to the current window keeps every existing guard intact (401/429 release capacity, pending attempts hold it, the budget ceiling inherits the same count) while matching the product's actual cadence |
 
 ## Proposed (awaiting Avi)
 
