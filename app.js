@@ -49,8 +49,10 @@ function render(data, corrections) {
     return [claim.ref, { ...claim, text: corrected.text, corrected: corrected.changed, article }];
   })));
   const institutions = new Set(data.articles.map((article) => article.institution));
-  byId('headline').textContent = data.synthesis.headline;
-  byId('overview').textContent = data.synthesis.overview;
+  const headline = applyCorrections(data.synthesis.headline, 'headline', corrections);
+  byId('headline').innerHTML = `${escapeHtml(headline.text)}${headline.changed ? correctionMarker() : ''}`;
+  const overview = applyCorrections(data.synthesis.overview, 'overview', corrections);
+  byId('overview').innerHTML = `${escapeHtml(overview.text)}${overview.changed ? correctionMarker() : ''}`;
   byId('window-label').textContent = dateRange(data.window).toUpperCase();
   byId('publication-count').textContent = data.articles.length;
   byId('claim-count').textContent = claims.size;
@@ -75,11 +77,12 @@ function render(data, corrections) {
   data.synthesis.themes.forEach((theme, themeIndex) => {
     const themeId = `theme-${themeIndex + 1}`;
     const navItem = document.createElement('li');
-    navItem.innerHTML = `<a href="#${themeId}"><span>0${themeIndex + 1}</span>${escapeHtml(theme.title)}</a>`;
+    const themeTitle = applyCorrections(theme.title, `theme-${themeIndex + 1}-title`, corrections);
+    navItem.innerHTML = `<a href="#${themeId}"><span>0${themeIndex + 1}</span>${escapeHtml(themeTitle.text)}</a>`;
     themeLinks.append(navItem);
     const section = document.createElement('section');
     section.className = 'theme'; section.id = themeId; section.dataset.themeId = `t${themeIndex + 1}`;
-    section.innerHTML = `<div class="theme-title"><span>0${themeIndex + 1}</span><h2>${escapeHtml(theme.title)}</h2></div>`;
+    section.innerHTML = `<div class="theme-title"><span>0${themeIndex + 1}</span><h2>${escapeHtml(themeTitle.text)}${themeTitle.changed ? correctionMarker() : ''}</h2></div>`;
     const pointList = document.createElement('div'); pointList.className = 'point-list';
     theme.points.forEach((point, pointIndex) => {
       const corrected = applyCorrections(point.text, `theme-${themeIndex + 1}-point-${pointIndex + 1}`, corrections);

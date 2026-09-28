@@ -1,11 +1,11 @@
 {
   "version": 1,
-  "source_input_sha256": "f054adf2d12df5e56c017c0b5768b888ba8dbb9764ab3abbcf930dbd7dacb6fa",
-  "request_bytes": 15948,
+  "source_input_sha256": "2756b0d29e84cd791baa39f5c590f6a414ab064f8a59015f8b3eff228a17b0f3",
+  "request_bytes": 14086,
   "window": {
     "timezone": "Europe/London",
-    "start_date": "2026-09-05",
-    "end_date": "2026-09-11"
+    "start_date": "2026-09-22",
+    "end_date": "2026-09-28"
   },
   "reserved_micro_usd": 100560,
   "model": "gpt-5.6-terra",
@@ -14,84 +14,81 @@
   "instruction_sha256": "3fc9371972bc6bb3c79af4f8b007c1d71cf7a4d58582345258e485a35b487c34",
   "schema_sha256": "67d52381ad73fffc19f11a5893e6a9149f3a1e687042c935e4e9369b15290ecd",
   "synthesis_sha256": "d30e94338cef8da8d56f55e392aecb3573e25868204451221bd6d6af557e8655",
-  "generated_at": "2026-09-11T16:48:05.280093+00:00",
+  "generated_at": "2026-09-28T15:09:20.200449+00:00",
   "coverage": {
-    "article_count": 6,
+    "article_count": 5,
     "institutions": [
-      "ABN AMRO",
       "BBVA Research",
-      "Bank for International Settlements"
+      "Bank for International Settlements",
+      "Federal Reserve Bank of New York"
     ]
   },
   "articles": [
     {
       "article_ref": "a1",
-      "institution": "BBVA Research",
-      "source_name": "BBVA Research",
-      "title": "Argentina | August inflation: 1.7% MoM, the lowest in 14 months",
-      "url": "https://www.bbvaresearch.com/en/publicaciones/argentina-august-inflation-17-mom-the-lowest-in-14-months/",
-      "publication_date": "2026-09-10",
+      "institution": "Federal Reserve Bank of New York",
+      "source_name": "Liberty Street Economics",
+      "title": "Who’s Borrowing and Lending in Repo Markets?",
+      "url": "https://libertystreeteconomics.newyorkfed.org/2026/09/whos-borrowing-and-lending-in-repo-markets/",
+      "publication_date": "2026-09-28",
       "claims": [
         {
           "ref": "a1:c1",
-          "text": "August headline inflation was 1.7% month-on-month, down from 2.1% in July and in line with expectations."
+          "text": "Recent estimates put outstanding U.S. repo agreements at about $13.5 trillion daily, or 40 percent of GDP."
         },
         {
           "ref": "a1:c2",
-          "text": "Core inflation was unchanged at 1.8% month-on-month and 32% year-on-year."
+          "text": "Around 70 percent of repos use U.S. Treasury collateral, most mature overnight, and about 60 percent are centrally or third-party cleared."
         },
         {
           "ref": "a1:c3",
-          "text": "Regulated prices rose 2.2% month-on-month; housing, water, electricity and gas services rose 2.8%."
+          "text": "The post says hedge-fund repo borrowing rose from $400 billion in 2013 to $3 trillion in late 2025."
         },
         {
           "ref": "a1:c4",
-          "text": "Seasonal prices declined 0.9% month-on-month after rising 4.5% in July, reflecting lower tourism-related prices."
-        },
-        {
-          "ref": "a1:c5",
-          "text": "BBVA Research maintains a 29% inflation forecast for 2026, with a slight upward bias for the rest of the year."
-        },
-        {
-          "ref": "a1:c6",
-          "text": "BBVA Research projects September inflation of 1.6% month-on-month and a 1.55% monthly average for the remainder of 2026."
+          "text": "MMF repo lending rose from under $600 billion in 2013 to $3 trillion in January 2026."
         }
       ],
       "read_depth": {
-        "scope": "BBVA HTML introduction and key points; not complete linked report"
+        "text_source": "article_body_html",
+        "rss_fallback_used": false,
+        "complete_paper_extracted": false,
+        "charts_tables_linked_reports_extracted": false,
+        "character_count": 9224,
+        "approximate_word_count": 1479
       }
     },
     {
       "article_ref": "a2",
       "institution": "BBVA Research",
       "source_name": "BBVA Research",
-      "title": "Europe | ECB hikes, December looms larger",
-      "url": "https://www.bbvaresearch.com/en/publicaciones/europe-ecb-hikes-december-looms-larger/",
-      "publication_date": "2026-09-10",
+      "title": "Mexico | Banxico explicitly signals room to diverge from the Fed",
+      "url": "https://www.bbvaresearch.com/en/publicaciones/mexico-banxico-explicitly-signals-room-to-diverge-from-the-fed/",
+      "publication_date": "2026-09-25",
       "claims": [
         {
           "ref": "a2:c1",
-          "text": "The ECB raised rates by 25bp to 2.50% in a unanimous decision."
+          "text": "Banxico held its policy rate at 6.50% for the third consecutive meeting."
         },
         {
           "ref": "a2:c2",
-          "text": "The ECB provided no guidance on its next policy move."
+          "text": "Banxico said future decisions will consider disinflation and its expected drivers."
         },
         {
           "ref": "a2:c3",
-          "text": "ECB projections revised inflation higher and keep it above target well into 2028."
+          "text": "Banxico stated it would not need to react mechanically to US Federal Reserve rate hikes because macroeconomic conditions differ."
         },
         {
           "ref": "a2:c4",
-          "text": "ECB projections indicate a relatively upbeat growth outlook."
+          "text": "BBVA Research says three further expected Fed hikes and recent exchange-rate moves likely contributed to Banxico's more cautious guidance."
         },
         {
           "ref": "a2:c5",
-          "text": "BBVA Research expects a further 25bp rate increase toward year-end, lifting the deposit rate to 2.75%."
+          "text": "BBVA Research says further Fed hikes while Banxico holds rates could lead to peso depreciation as the rate differential narrows."
         },
         {
           "ref": "a2:c6",
-          "text": "BBVA Research sees upside risk to rates if conflict and the energy shock persist."
+          "text": "BBVA Research views forthcoming meeting minutes as important for gauging how Fed tightening has affected board members' policy views."
         }
       ],
       "read_depth": {
@@ -100,68 +97,65 @@
     },
     {
       "article_ref": "a3",
-      "institution": "BBVA Research",
-      "source_name": "BBVA Research",
-      "title": "Türkiye | Caution Returns to the Fore at the CBRT",
-      "url": "https://www.bbvaresearch.com/en/publicaciones/turkiye-caution-returns-to-the-fore-at-the-cbrt/",
-      "publication_date": "2026-09-10",
+      "institution": "Bank for International Settlements",
+      "source_name": "BIS and FSI publications",
+      "title": "Old workers, young machines: can AI and automation offset population ageing?",
+      "url": "https://www.bis.org/publications/bulletin-135-old-workers-young-machines-can-ai-and-automation-offset-population-ageing",
+      "publication_date": "2026-09-24",
       "claims": [
         {
           "ref": "a3:c1",
-          "text": "The CBRT left its policy rate at 37% and its interest-rate corridor at 35.5%-40%, matching market consensus."
+          "text": "BIS says AI and robots may offset macroeconomic effects of an ageing workforce, depending on which industries are ageing."
         },
         {
           "ref": "a3:c2",
-          "text": "The CBRT cited weak domestic demand and limited transmission of supply shocks to prices, while identifying high energy prices as an upside inflation risk."
+          "text": "BIS says automation most readily substitutes for jobs in younger-workforce industries, such as finance."
         },
         {
           "ref": "a3:c3",
-          "text": "BBVA Research nowcasts September CPI inflation slightly above 2% month-on-month, or just under 2% on a seasonally adjusted basis."
+          "text": "BIS says older, high-employment industries, including agriculture and health, have less scope for automation."
         },
         {
           "ref": "a3:c4",
-          "text": "BBVA Research expects a 100-basis-point policy-rate cut at the October 22 MPC meeting if energy prices normalize below $90 per barrel."
-        },
-        {
-          "ref": "a3:c5",
-          "text": "BBVA Research expects annual inflation to decline to about 30% but remain sticky around that level until late Q1 2027, with the policy rate at 36% until disinflation improves more clearly."
+          "text": "BIS developed an ageing–automation scorecard covering over 130 economies."
         }
       ],
       "read_depth": {
-        "scope": "BBVA HTML introduction and key points; not complete linked report"
+        "text_source": "rss_excerpt",
+        "rss_fallback_used": true,
+        "complete_paper_extracted": false,
+        "charts_tables_linked_reports_extracted": false,
+        "character_count": 499,
+        "approximate_word_count": 69
       }
     },
     {
       "article_ref": "a4",
       "institution": "Bank for International Settlements",
       "source_name": "BIS and FSI publications",
-      "title": "When machines attack: frontier AI cyber threats and policy responses in the financial sector",
-      "url": "https://www.bis.org/publications/fsi-paper-28-when-machines-attack-frontier-ai-cyber-threats-and-policy-responses-financial-sector",
-      "publication_date": "2026-09-09",
+      "title": "Unraveling the cobweb of global imbalances: drivers, vulnerabilities, and adjustment scenarios",
+      "url": "https://www.bis.org/publications/working-paper-1379-unraveling-cobweb-global-imbalances-drivers-vulnerabilities-and-adjustment-scenarios",
+      "publication_date": "2026-09-23",
       "claims": [
         {
           "ref": "a4:c1",
-          "text": "Frontier AI models can autonomously identify vulnerabilities, develop exploits and conduct increasingly complex multi-step cyber operations, reducing the expertise, time and resources needed for sophisticated attacks."
+          "text": "The US net international investment position has deteriorated while it has improved in most other major economies."
         },
         {
           "ref": "a4:c2",
-          "text": "The same AI capabilities can improve defensive vulnerability discovery, threat detection and incident response."
+          "text": "Financial factors, including valuation changes and investment income, are the main drivers of global imbalances at short and long horizons; trade is especially significant at long horizons."
         },
         {
           "ref": "a4:c3",
-          "text": "For financial institutions, faster discovery-to-exploitation cycles and automated exploit chaining increase breach likelihood; unpatched software is described as a leading initial access route in many incidents."
+          "text": "Since 2010, valuation gains on international investment positions supported growth in many countries but increased exposure to financial-market adjustments."
         },
         {
           "ref": "a4:c4",
-          "text": "Dependence on common cloud, software and frontier AI providers creates concentration and sovereign-access risks that can spread across firms and jurisdictions."
+          "text": "Simulated dollar depreciation, equity repricing, higher interest rates and reduced trade imbalances suggest that sizeable rebalancing would generate substantial and uneven international spillovers."
         },
         {
           "ref": "a4:c5",
-          "text": "Financial authorities are generally reinforcing existing cyber-risk and operational-resilience frameworks rather than creating new AI-specific cyber regimes."
-        },
-        {
-          "ref": "a4:c6",
-          "text": "Policy responses emphasise timely governance decisions, accelerated patching, and stronger response and recovery capabilities."
+          "text": "BIS estimates that popular proposals to reduce imbalances would have limited effects, and that continued trends would widen imbalances."
         }
       ],
       "read_depth": {
@@ -169,217 +163,137 @@
         "rss_fallback_used": false,
         "complete_paper_extracted": false,
         "charts_tables_linked_reports_extracted": false,
-        "character_count": 1790,
-        "approximate_word_count": 230
+        "character_count": 3849,
+        "approximate_word_count": 538
       }
     },
     {
       "article_ref": "a5",
-      "institution": "ABN AMRO",
-      "source_name": "ABN AMRO Group Economics",
-      "title": "Spotlight - US Midterms – Trump can veto, Democrats cannot",
-      "url": "https://www.abnamro.com/research/en/our-research/spotlight-us-midterms-trump-can-veto-democrats-cannot",
-      "publication_date": "2026-09-07",
+      "institution": "Federal Reserve Bank of New York",
+      "source_name": "Liberty Street Economics",
+      "title": "Treasury Trading at the Close",
+      "url": "https://libertystreeteconomics.newyorkfed.org/2026/09/treasury-trading-at-the-close/",
+      "publication_date": "2026-09-22",
       "claims": [
         {
           "ref": "a5:c1",
-          "text": "ABN AMRO’s base case is a Democratic House and Republican Senate."
+          "text": "The authors find the ten-minute share of daily volume around 4 p.m. rose from 2.5% in 2021 to 3.5% in 2025."
         },
         {
           "ref": "a5:c2",
-          "text": "It expects Democrats to gain ground, while a Republican congressional sweep is becoming less likely."
+          "text": "On month-end trading days, the ten-minute share around 4 p.m. rose from 11.6% in 2021 to 20.4% in 2025."
         },
         {
           "ref": "a5:c3",
-          "text": "The bank does not expect election scenarios to materially alter the US economic path."
+          "text": "In 2025, more than one-quarter of month-end daily volume occurred from 3:45 to 4:15 p.m., on average."
         },
         {
           "ref": "a5:c4",
-          "text": "It expects trade, tariffs, immigration, domestic policy, energy policy and deregulation to remain priorities in the second half of Trump’s term."
+          "text": "The analysis finds Bloomberg's January 2021 strike-time change was accompanied by a marked shift in trading from around 3 p.m. to around 4 p.m."
         },
         {
           "ref": "a5:c5",
-          "text": "Fiscal expansion would be fastest with Republican control of Congress and slowest with a Democratic sweep."
-        },
-        {
-          "ref": "a5:c6",
-          "text": "A divided Congress would mean legislative gridlock alongside continued executive-led deregulation and trade policy."
+          "text": "The post argues the results strongly indicate that index-pricing conventions materially affect Treasury trading timing."
         }
       ],
       "read_depth": {
-        "text_source": "article_html",
-        "listing_fallback_used": false,
-        "charts_tables_linked_reports_extracted": false,
-        "character_count": 3739,
-        "approximate_word_count": 585
-      }
-    },
-    {
-      "article_ref": "a6",
-      "institution": "Bank for International Settlements",
-      "source_name": "BIS and FSI publications",
-      "title": "What determines banks' excess demand for reserves?",
-      "url": "https://www.bis.org/publications/working-paper-1376-what-determines-banks-excess-demand-reserves",
-      "publication_date": "2026-09-07",
-      "claims": [
-        {
-          "ref": "a6:c1",
-          "text": "For banks active in interbank markets, excess reserves rise with payment-flow volatility and interbank borrowing costs."
-        },
-        {
-          "ref": "a6:c2",
-          "text": "Active banks hold less excess reserves when aggregate interbank activity is higher."
-        },
-        {
-          "ref": "a6:c3",
-          "text": "Banks inactive in interbank markets also raise reserves when payment flows are more volatile, and their reserve holdings are more persistent."
-        },
-        {
-          "ref": "a6:c4",
-          "text": "The study finds no robust evidence that liquidity regulation increases demand for excess reserves."
-        },
-        {
-          "ref": "a6:c5",
-          "text": "The researchers view interbank-market functioning and fragmentation as important determinants of aggregate reserve demand."
-        }
-      ],
-      "read_depth": {
-        "text_source": "publication_page_html",
+        "text_source": "article_body_html",
         "rss_fallback_used": false,
         "complete_paper_extracted": false,
         "charts_tables_linked_reports_extracted": false,
-        "character_count": 3379,
-        "approximate_word_count": 513
+        "character_count": 6107,
+        "approximate_word_count": 1027
       }
     }
   ],
   "synthesis": {
-    "headline": "Inflation, energy risks and financial-system resilience shape the policy outlook",
-    "overview": "Recent research highlights diverging monetary-policy settings shaped by inflation and energy conditions, alongside evidence that payment volatility and interbank-market functioning affect banks’ reserve demand. Separate work flags how frontier AI may accelerate both cyber attacks and defences in finance, while an election outlook sees limited change to the overall US economic path across congressional outcomes.",
+    "headline": "Market structure, policy divergence and adjustment risks shape the latest institutional research",
+    "overview": "The research highlights the scale and evolving structure of US dollar funding and Treasury trading, alongside conditional risks from monetary-policy divergence and global rebalancing. It also identifies uneven scope for automation to cushion population ageing.",
     "themes": [
       {
-        "title": "Inflation paths leave central banks conditional and cautious",
+        "title": "US funding and Treasury-market activity have become highly concentrated in specific channels and times",
         "points": [
           {
-            "text": "In Argentina, August headline inflation slowed to 1.7% month-on-month from 2.1% in July, helped by a 0.9% monthly fall in seasonal prices after a 4.5% July increase. Core inflation was unchanged at 1.8% month-on-month and stood at 32% year-on-year, while regulated prices rose 2.2%.",
+            "text": "Outstanding US repo agreements are estimated at about $13.5 trillion daily, equivalent to 40% of GDP. Around 70% use US Treasury collateral, most mature overnight, and roughly 60% are centrally or third-party cleared.",
             "references": [
               "a1:c1",
-              "a1:c2",
+              "a1:c2"
+            ]
+          },
+          {
+            "text": "Hedge-fund repo borrowing increased from $400 billion in 2013 to $3 trillion in late 2025, while money market fund repo lending rose from less than $600 billion to $3 trillion in January 2026.",
+            "references": [
               "a1:c3",
               "a1:c4"
             ]
           },
           {
-            "text": "BBVA Research retains its 29% 2026 Argentine inflation forecast, with a slight upward bias. It projects 1.6% monthly inflation in September and a 1.55% monthly average for the rest of 2026.",
+            "text": "Treasury trading has increasingly clustered around the 4 p.m. fixed-income index pricing time. The share of daily volume in the surrounding ten minutes rose from 2.5% in 2021 to 3.5% in 2025; on month-end days it rose from 11.6% to 20.4%. In 2025, more than one-quarter of month-end volume occurred between 3:45 and 4:15 p.m., on average.",
             "references": [
-              "a1:c5",
-              "a1:c6"
+              "a5:c1",
+              "a5:c2",
+              "a5:c3"
             ]
           },
           {
-            "text": "In Europe, the ECB raised rates by 25 basis points to 2.50% unanimously and offered no guidance on its next move. Its projections revised inflation higher and keep it above target well into 2028, despite a relatively upbeat growth outlook.",
+            "text": "The analysis finds that Bloomberg’s January 2021 change in its US-dollar index strike time coincided with a marked migration in Treasury activity from around 3 p.m. to around 4 p.m., and argues that index-pricing conventions materially affect trading timing. This may increase participants’ incentive to transact near benchmark pricing windows, particularly at month-end; this is a behavioural implication drawn from the observed timing patterns.",
+            "references": [
+              "a5:c4",
+              "a5:c5"
+            ]
+          }
+        ]
+      },
+      {
+        "title": "Policy divergence and global rebalancing carry conditional cross-border risks",
+        "points": [
+          {
+            "text": "Banxico held its policy rate at 6.50% for a third consecutive meeting and said future decisions would take account of disinflation and its expected drivers. It also stated that differing Mexican and US macroeconomic conditions mean it need not respond mechanically to Federal Reserve rate increases.",
             "references": [
               "a2:c1",
               "a2:c2",
-              "a2:c3",
-              "a2:c4"
+              "a2:c3"
             ]
           },
           {
-            "text": "BBVA Research expects one further 25bp ECB increase toward year-end, taking the deposit rate to 2.75%, and sees upside risk to rates if conflict and the energy shock persist.",
+            "text": "BBVA Research says three further expected Federal Reserve hikes and recent exchange-rate moves likely contributed to Banxico’s more cautious guidance. It adds that, if the Fed hikes further while Banxico holds rates, the narrowing rate differential could lead to peso depreciation.",
             "references": [
-              "a2:c5",
-              "a2:c6"
+              "a2:c4",
+              "a2:c5"
             ]
           },
           {
-            "text": "Türkiye’s central bank kept its policy rate at 37%, citing weak domestic demand and limited pass-through from supply shocks while identifying high energy prices as an upside risk to inflation. BBVA Research expects a 100bp October cut only if energy prices normalise below $90 per barrel; it otherwise expects inflation near 30% to remain sticky until late first-quarter 2027 and the policy rate to stand at 36% until disinflation improves more clearly.",
-            "references": [
-              "a3:c1",
-              "a3:c2",
-              "a3:c4",
-              "a3:c5"
-            ]
-          }
-        ]
-      },
-      {
-        "title": "Bank liquidity demand depends on payment uncertainty and market access",
-        "points": [
-          {
-            "text": "Using Swedish bank-level data, the BIS study finds that banks active in interbank markets hold more excess reserves when payment flows are more volatile or interbank borrowing is more costly, and less when aggregate interbank activity is higher.",
-            "references": [
-              "a6:c1",
-              "a6:c2"
-            ]
-          },
-          {
-            "text": "Banks inactive in interbank markets also increase reserves when payment flows become more volatile, and their balances are more persistent. The researchers find no robust evidence that liquidity regulation raises excess-reserve demand, instead identifying interbank-market functioning and fragmentation as important determinants of aggregate demand.",
-            "references": [
-              "a6:c3",
-              "a6:c4",
-              "a6:c5"
-            ]
-          },
-          {
-            "text": "As a behavioural implication of these findings, volatile payments, costly borrowing or thinner interbank activity may increase banks’ incentive to retain reserve buffers rather than rely on borrowing when liquidity is needed.",
-            "references": [
-              "a6:c1",
-              "a6:c2",
-              "a6:c3",
-              "a6:c5"
-            ]
-          }
-        ]
-      },
-      {
-        "title": "Frontier AI raises the tempo of cyber-risk management in finance",
-        "points": [
-          {
-            "text": "The BIS analysis says frontier AI can autonomously identify vulnerabilities, develop exploits and undertake increasingly complex multi-step cyber operations, reducing the expertise, time and resources required for sophisticated attacks. The same capabilities can also improve defensive vulnerability discovery, threat detection and incident response.",
+            "text": "BIS analysis finds that financial factors—including valuation changes and investment income—are the principal drivers of global imbalances at both short and long horizons, while trade is particularly important over longer horizons. The US net international investment position has deteriorated, whereas it has improved in most other major economies.",
             "references": [
               "a4:c1",
               "a4:c2"
             ]
           },
           {
-            "text": "For financial institutions, the analysis identifies faster discovery-to-exploitation cycles and automated exploit chaining as factors increasing breach likelihood; it describes unpatched software as a leading initial access route in many incidents. Dependence on common cloud, software and frontier-AI providers can also create concentration and sovereign-access risks that spread across firms and jurisdictions.",
+            "text": "Since 2010, valuation gains on international investment positions supported growth in many countries but also increased exposure to financial-market adjustments. BIS simulations suggest that sizeable rebalancing through dollar depreciation, equity repricing, higher interest rates or narrower trade imbalances would generate substantial and uneven international spillovers; it estimates that commonly proposed remedies would have limited effects, while continuation of existing trends would widen imbalances.",
             "references": [
               "a4:c3",
-              "a4:c4"
-            ]
-          },
-          {
-            "text": "Authorities are generally strengthening existing cyber-risk and operational-resilience frameworks rather than building new AI-specific regimes, with emphasis on timely governance decisions, accelerated patching, and stronger response and recovery capabilities.",
-            "references": [
-              "a4:c5",
-              "a4:c6"
+              "a4:c4",
+              "a4:c5"
             ]
           }
         ]
       },
       {
-        "title": "US midterm scenarios may change the pace of policy rather than the economic path",
+        "title": "Automation may cushion ageing, but its potential differs sharply across industries",
         "points": [
           {
-            "text": "ABN AMRO’s base case is for Democrats to win the House and Republicans to retain the Senate. It expects Democrats to gain ground and judges a Republican congressional sweep increasingly unlikely.",
+            "text": "BIS says AI and robots may offset some macroeconomic effects of workforce ageing, conditional on which industries are ageing. Automation more readily substitutes for jobs in relatively younger-workforce industries such as finance, while older, high-employment industries including agriculture and health have less scope for automation.",
             "references": [
-              "a5:c1",
-              "a5:c2"
+              "a3:c1",
+              "a3:c2",
+              "a3:c3"
             ]
           },
           {
-            "text": "The bank does not expect the election scenarios to materially alter the US economic path. It expects trade, tariffs, immigration, domestic policy, energy policy and deregulation to remain priorities in the second half of Trump’s term.",
+            "text": "BIS developed an ageing–automation scorecard spanning more than 130 economies, indicating an effort to assess these differing exposures across countries.",
             "references": [
-              "a5:c3",
-              "a5:c4"
-            ]
-          },
-          {
-            "text": "ABN AMRO expects fiscal expansion to be fastest under Republican congressional control and slowest under a Democratic sweep. Under divided government, it expects legislative gridlock alongside continued executive-led deregulation and trade policy.",
-            "references": [
-              "a5:c5",
-              "a5:c6"
+              "a3:c4"
             ]
           }
         ]
